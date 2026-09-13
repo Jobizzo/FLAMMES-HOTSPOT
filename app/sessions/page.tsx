@@ -40,7 +40,7 @@ export default function SessionsPage() {
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Statistics */}
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
@@ -48,9 +48,11 @@ export default function SessionsPage() {
               size={22}
               className="mb-4 text-orange-500"
             />
+
             <p className="text-sm text-gray-500">
               Active Sessions
             </p>
+
             <p className="mt-1 text-3xl font-black">
               0
             </p>
@@ -61,9 +63,11 @@ export default function SessionsPage() {
               size={22}
               className="mb-4 text-orange-500"
             />
+
             <p className="text-sm text-gray-500">
               Total Session Time
             </p>
+
             <p className="mt-1 text-3xl font-black">
               0h
             </p>
@@ -74,9 +78,11 @@ export default function SessionsPage() {
               size={22}
               className="mb-4 text-orange-500"
             />
+
             <p className="text-sm text-gray-500">
               Connected Devices
             </p>
+
             <p className="mt-1 text-3xl font-black">
               0
             </p>
@@ -87,9 +93,11 @@ export default function SessionsPage() {
               size={22}
               className="mb-4 text-orange-500"
             />
+
             <p className="text-sm text-gray-500">
               Routers Online
             </p>
+
             <p className="mt-1 text-3xl font-black">
               0
             </p>
@@ -97,10 +105,11 @@ export default function SessionsPage() {
 
         </div>
 
-        {/* Sessions table */}
+        {/* Current Sessions */}
         <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
 
           <div className="mb-5 flex items-center justify-between">
+
             <div>
               <h2 className="text-lg font-bold">
                 Current Sessions
@@ -115,24 +124,49 @@ export default function SessionsPage() {
               size={21}
               className="text-orange-500"
             />
+
           </div>
 
           <div className="overflow-x-auto">
+
             <table className="w-full min-w-[800px] text-left">
 
               <thead>
                 <tr className="border-b border-[#252525] text-xs text-gray-500">
-                  <th className="px-4 py-4">CUSTOMER</th>
-                  <th className="px-4 py-4">DEVICE</th>
-                  <th className="px-4 py-4">PACKAGE</th>
-                  <th className="px-4 py-4">DURATION</th>
-                  <th className="px-4 py-4">ROUTER</th>
-                  <th className="px-4 py-4">STATUS</th>
-                  <th className="px-4 py-4">ACTION</th>
+
+                  <th className="px-4 py-4">
+                    CUSTOMER
+                  </th>
+
+                  <th className="px-4 py-4">
+                    DEVICE
+                  </th>
+
+                  <th className="px-4 py-4">
+                    PACKAGE
+                  </th>
+
+                  <th className="px-4 py-4">
+                    DURATION
+                  </th>
+
+                  <th className="px-4 py-4">
+                    ROUTER
+                  </th>
+
+                  <th className="px-4 py-4">
+                    STATUS
+                  </th>
+
+                  <th className="px-4 py-4">
+                    ACTION
+                  </th>
+
                 </tr>
               </thead>
 
               <tbody>
+
                 {sessions.map((session) => (
                   <tr
                     key={session.customer}
@@ -140,7 +174,9 @@ export default function SessionsPage() {
                   >
 
                     <td className="px-4 py-5">
+
                       <div className="flex items-center gap-3">
+
                         <div className="rounded-lg bg-orange-500/10 p-2">
                           <User
                             size={17}
@@ -151,7 +187,9 @@ export default function SessionsPage() {
                         <span className="text-sm font-semibold">
                           {session.customer}
                         </span>
+
                       </div>
+
                     </td>
 
                     <td className="px-4 py-5 text-sm text-gray-500">
@@ -171,31 +209,40 @@ export default function SessionsPage() {
                     </td>
 
                     <td className="px-4 py-5">
+
                       <span className="rounded-full bg-gray-500/10 px-3 py-1 text-xs text-gray-500">
                         {session.status}
                       </span>
+
                     </td>
 
                     <td className="px-4 py-5">
+
                       <button
                         disabled
                         className="flex items-center gap-2 rounded-lg border border-[#292929] px-3 py-2 text-xs text-gray-600"
                       >
+
                         <LogOut size={15} />
+
                         Disconnect
+
                       </button>
+
                     </td>
 
                   </tr>
                 ))}
+
               </tbody>
 
             </table>
+
           </div>
 
         </div>
 
-        {/* Future integration */}
+        {/* Session Management */}
         <div className="mt-8 rounded-2xl border border-[#252525] bg-[#111] p-6">
 
           <h2 className="text-lg font-bold">
@@ -207,5 +254,54 @@ export default function SessionsPage() {
             connect through the captive portal.
           </p>
 
-          <div className="mt-6 grid
-.
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+
+            <div className="rounded-xl border border-[#252525] bg-[#0b0b0b] p-4">
+
+              <p className="text-xs text-gray-500">
+                AUTO SESSION TRACKING
+              </p>
+
+              <p className="mt-2 font-semibold text-green-500">
+                Enabled
+              </p>
+
+            </div>
+
+            <div className="rounded-xl border border-[#252525] bg-[#0b0b0b] p-4">
+
+              <p className="text-xs text-gray-500">
+                AUTO EXPIRATION
+              </p>
+
+              <p className="mt-2 font-semibold text-green-500">
+                Enabled
+              </p>
+
+            </div>
+
+            <div className="rounded-xl border border-[#252525] bg-[#0b0b0b] p-4">
+
+              <p className="text-xs text-gray-500">
+                ROUTER CONTROL
+              </p>
+
+              <p className="mt-2 font-semibold text-orange-500">
+                Integration Required
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-10 border-t border-[#252525] pt-6 text-center text-xs text-gray-600">
+          © 2026 FLAMMES TECH. All rights reserved. Powered by FLAMMES TECH
+        </footer>
+
+      </div>
+    </main>
+  );
+}
