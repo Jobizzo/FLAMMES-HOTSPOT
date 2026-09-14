@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/db/supabase";
-
+import { supabaseAdmin } from "../../../lib/db/supabase";
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("customers")
@@ -54,4 +53,4 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  }
+  
