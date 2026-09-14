@@ -52,5 +52,6 @@ export async function POST(request: Request) {
       { error: "Invalid request." },
       { status: 400 }
     );
-  }
+    }
+}
   
