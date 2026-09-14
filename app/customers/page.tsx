@@ -1,80 +1,129 @@
 "use client";
 
-import { Search, UserPlus, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+type Customer = {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string | null;
+  status: "active" | "inactive" | "expired";
+  created_at: string;
+};
 
 export default function CustomersPage() {
-  return (
-    <main className="min-h-screen bg-[#070707] text-white">
-      <div className="mx-auto max-w-7xl p-5 md:p-8">
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState("");
 
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+
+  async function loadCustomers() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch("/api/customers");
+
+      if (!response.ok) {
+        throw new Error("Failed to load customers.");
+      }
+
+      const data = await response.json();
+      setCustomers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  async function addCustomer(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!name.trim() || !phone.trim()) {
+      setError("Name and phone number are required.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const response = await fetch("/api/customers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to add customer.");
+      }
+
+      setCustomers((current) => [data, ...current]);
+
+      setName("");
+      setPhone("");
+      setEmail("");
+      setShowForm(false);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const filteredCustomers = useMemo(() => {
+    const query = search.toLowerCase().trim();
+
+    if (!query) return customers;
+
+    return customers.filter(
+      (customer) =>
+        customer.name.toLowerCase().includes(query) ||
+        customer.phone.toLowerCase().includes(query) ||
+        (customer.email || "").toLowerCase().includes(query)
+    );
+  }, [customers, search]);
+
+  const activeCount = customers.filter(
+    (customer) => customer.status === "active"
+  ).length;
+
+  const expiredCount = customers.filter(
+    (customer) => customer.status === "expired"
+  ).length;
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+
+        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm text-orange-500">FLAMMES HOTSPOT</p>
-            <h1 className="mt-1 text-3xl font-black">
-              Customers
-            </h1>
-            <p className="mt-2 text-sm text-gray-500">
-              Manage customers using your hotspot network.
-            </p>
-          </div>
-
-          <button className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 font-bold text-black">
-            <UserPlus size={19} />
-            Add Customer
-          </button>
-        </div>
-
-        <div className="mb-6 grid gap-4 sm:grid-cols-3">
-
-          <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
-            <Users className="mb-4 text-orange-500" size={22} />
-            <p className="text-sm text-gray-500">Total Customers</p>
-            <p className="mt-1 text-3xl font-black">0</p>
-          </div>
-
-          <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
-            <div className="mb-4 h-3 w-3 rounded-full bg-green-500" />
-            <p className="text-sm text-gray-500">Online</p>
-            <p className="mt-1 text-3xl font-black">0</p>
-          </div>
-
-          <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
-            <div className="mb-4 h-3 w-3 rounded-full bg-gray-600" />
-            <p className="text-sm text-gray-500">Offline</p>
-            <p className="mt-1 text-3xl font-black">0</p>
-          </div>
-
-        </div>
-
-        <div className="rounded-2xl border border-[#252525] bg-[#111] p-5">
-
-          <div className="mb-5 flex items-center gap-3 rounded-xl border border-[#252525] bg-[#0b0b0b] px-4 py-3">
-            <Search size={19} className="text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search customers..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-gray-600"
-            />
-          </div>
-
-          <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-[#292929]">
-            <div className="text-center">
-              <Users
-                size={35}
-                className="mx-auto mb-3 text-gray-700"
-              />
-              <p className="font-semibold text-gray-500">
-                No customers yet
-              </p>
-              <p className="mt-1 text-xs text-gray-700">
-                Customers will appear here when they connect.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </main>
-  );
-}
+            <div className="mb-2 text-sm font
