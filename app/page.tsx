@@ -15,7 +15,10 @@ import {
   Menu,
   Bell,
   ShieldCheck,
+  ArrowUpRight,
+  TrendingUp,
 } from "lucide-react";
+import { useState } from "react";
 
 const menuItems = [
   {
@@ -64,50 +67,91 @@ const stats = [
   {
     title: "Active Users",
     value: "0",
+    change: "+0%",
     description: "Currently connected",
     icon: Users,
+    badge: "LIVE",
+    color: "from-blue-600 to-blue-400",
   },
   {
     title: "Today's Revenue",
     value: "KES 0",
+    change: "+0%",
     description: "Hotspot sales today",
     icon: CircleDollarSign,
+    badge: "LIVE",
+    color: "from-green-600 to-green-400",
   },
   {
     title: "Online Sessions",
     value: "0",
+    change: "+0%",
     description: "Active sessions",
     icon: Activity,
+    badge: "LIVE",
+    color: "from-purple-600 to-purple-400",
   },
   {
     title: "Connected Routers",
     value: "0",
+    change: "+0%",
     description: "Routers online",
     icon: Router,
+    badge: "LIVE",
+    color: "from-amber-600 to-amber-400",
+  },
+];
+
+const recentActivities = [
+  {
+    id: 1,
+    action: "Customer registered",
+    details: "John Doe (KES 500 package)",
+    time: "2 minutes ago",
+    icon: Users,
+  },
+  {
+    id: 2,
+    action: "Payment received",
+    details: "M-Pesa transaction #12345",
+    time: "15 minutes ago",
+    icon: CreditCard,
+  },
+  {
+    id: 3,
+    action: "Router connected",
+    details: "TP-Link Archer C7 (Westlands)",
+    time: "1 hour ago",
+    icon: Router,
+  },
+  {
+    id: 4,
+    action: "Session expired",
+    details: "Jane Smith (2-hour pass)",
+    time: "2 hours ago",
+    icon: Wifi,
   },
 ];
 
 export default function Dashboard() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-[#070707] text-white">
       <div className="flex min-h-screen">
-
         {/* SIDEBAR */}
-        <aside className="hidden w-64 shrink-0 border-r border-[#252525] bg-[#0b0b0b] p-5 md:block">
-
+        <aside className="hidden w-64 shrink-0 border-r border-[#252525] bg-[#0b0b0b] p-5 md:block sticky top-0 h-screen overflow-y-auto">
           {/* Logo */}
-          <div className="mb-10">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-xl">
+          <div className="mb-10 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-xl font-bold shadow-lg">
                 🔥
               </div>
 
               <div>
-                <h1 className="text-lg font-black">
-                  FLAMMES
-                </h1>
+                <h1 className="text-lg font-black tracking-tight">FLAMMES</h1>
 
-                <p className="text-[10px] font-bold tracking-[0.25em] text-gray-500">
+                <p className="text-[10px] font-bold tracking-[0.25em] text-orange-500">
                   HOTSPOT
                 </p>
               </div>
@@ -115,11 +159,9 @@ export default function Dashboard() {
           </div>
 
           {/* Navigation */}
-          <p className="mb-3 px-3 text-[10px] font-bold tracking-[0.2em] text-gray-600">
-            MANAGEMENT
-          </p>
+          <p className="mb-4 px-3 text-sm-caps text-gray-600">Management</p>
 
-          <nav className="space-y-2">
+          <nav className="space-y-2 mb-8">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const active = item.href === "/";
@@ -128,9 +170,9 @@ export default function Dashboard() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                     active
-                      ? "bg-orange-500 text-black"
+                      ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20"
                       : "text-gray-400 hover:bg-[#181818] hover:text-white"
                   }`}
                 >
@@ -142,334 +184,307 @@ export default function Dashboard() {
           </nav>
 
           {/* System Status */}
-          <div className="mt-10 rounded-2xl border border-[#252525] bg-[#111] p-4">
-            <p className="text-[10px] font-bold tracking-wider text-gray-600">
-              SYSTEM STATUS
-            </p>
+          <div className="mt-auto rounded-2xl glass-effect glass-effect-hover p-4">
+            <p className="text-sm-caps text-gray-600">System Status</p>
 
-            <div className="mt-3 flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+            <div className="mt-4 flex items-center gap-3">
+              <span className="status-dot status-dot-online" />
 
-              <span className="text-sm font-medium">
-                System Online
-              </span>
+              <div>
+                <span className="text-sm font-semibold">System Online</span>
+                <p className="text-xs text-gray-500 leading-tight">
+                  Ready for operations
+                </p>
+              </div>
             </div>
-
-            <p className="mt-2 text-xs leading-5 text-gray-600">
-              FLAMMES HOTSPOT is ready for network management.
-            </p>
           </div>
         </aside>
 
         {/* MAIN CONTENT */}
         <section className="min-w-0 flex-1">
-
           {/* HEADER */}
           <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#252525] bg-[#0b0b0b]/95 px-5 py-4 backdrop-blur md:px-8">
-
-            <div className="flex items-center gap-3">
-
-              {/* Mobile Menu */}
+            <div className="flex items-center gap-4">
+              {/* Mobile Menu Toggle */}
               <button
                 type="button"
-                className="rounded-lg p-2 hover:bg-[#181818] md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="rounded-lg p-2 hover:bg-[#181818] md:hidden transition-colors"
                 aria-label="Open menu"
               >
                 <Menu size={22} />
               </button>
 
               <div>
-                <p className="text-[10px] font-bold tracking-[0.2em] text-orange-500">
+                <p className="text-[10px] font-bold tracking-widest text-orange-500">
                   ADMIN PANEL
                 </p>
 
-                <h2 className="text-lg font-bold">
-                  Dashboard
-                </h2>
+                <h2 className="text-lg font-bold">Dashboard</h2>
               </div>
             </div>
 
             {/* Notifications */}
             <button
               type="button"
-              className="relative rounded-xl border border-[#252525] bg-[#111] p-3 hover:bg-[#181818]"
+              className="relative rounded-xl border border-[#252525] bg-[#111] p-3 hover:bg-[#181818] transition-colors"
               aria-label="Notifications"
             >
               <Bell size={19} />
 
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-orange-500" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50 animate-pulse-glow" />
             </button>
           </header>
 
-          {/* PAGE */}
+          {/* PAGE CONTENT */}
           <div className="mx-auto max-w-[1500px] p-5 md:p-8">
-
-            {/* HERO */}
-            <section className="relative mb-8 overflow-hidden rounded-3xl border border-[#292929] bg-gradient-to-br from-[#18100b] via-[#101010] to-[#090909] p-6 md:p-8">
-
+            {/* HERO SECTION */}
+            <section className="relative mb-8 overflow-hidden rounded-3xl border border-[#292929] bg-gradient-to-br from-[#18100b] via-[#101010] to-[#090909] p-6 md:p-8 animate-slide-up">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl" />
 
-              <div className="relative">
+              <div className="relative z-10">
+                <div className="mb-6 flex flex-wrap items-center gap-3">
+                  <span className="badge badge-primary">FLAMMES TECH</span>
 
-                <div className="mb-4 flex flex-wrap items-center gap-3">
-
-                  <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-[10px] font-bold tracking-wider text-orange-400">
-                    FLAMMES TECH
+                  <span className="flex items-center gap-2 text-xs font-medium">
+                    <span className="status-dot status-dot-online" />
+                    <span className="text-green-400">ONLINE</span>
                   </span>
-
-                  <span className="flex items-center gap-2 text-xs text-green-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                    ONLINE
-                  </span>
-
                 </div>
 
-                <h1 className="max-w-3xl text-3xl font-black tracking-tight md:text-5xl">
+                <h1 className="max-w-3xl text-3xl font-black tracking-tight md:text-5xl leading-tight">
                   Your hotspot.
                   <br />
 
-                  <span className="text-orange-500">
-                    Your network.
-                  </span>{" "}
-                  Your control.
+                  <span className="text-gradient">Your network.</span> Your
+                  control.
                 </h1>
 
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-500 md:text-base">
-                  Manage customers, packages, payments, sessions
-                  and connected routers from one powerful platform.
+                <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-400 md:text-base">
+                  Manage customers, packages, payments, sessions and connected
+                  routers from one powerful platform. Monitor real-time activity
+                  and scale your hotspot business effortlessly.
                 </p>
 
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <button className="flames-button">Get Started</button>
+                  <button className="flames-button-secondary">
+                    View Documentation
+                  </button>
+                </div>
               </div>
             </section>
 
-            {/* STATS */}
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
+            {/* STATS GRID */}
+            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
               {stats.map((stat) => {
                 const Icon = stat.icon;
 
                 return (
                   <div
                     key={stat.title}
-                    className="rounded-2xl border border-[#252525] bg-[#111] p-5 transition hover:-translate-y-1 hover:border-orange-500/30"
+                    className="flames-card group overflow-hidden animate-slide-up"
+                    style={{ animationDelay: `${stats.indexOf(stat) * 50}ms` }}
                   >
-
                     <div className="mb-5 flex items-center justify-between">
-
-                      <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
+                      <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-3 text-white shadow-lg`}>
                         <Icon size={21} />
                       </div>
 
-                      <span className="text-[10px] font-bold text-green-500">
-                        LIVE
+                      <span className="text-[10px] font-bold text-green-500 badge badge-success">
+                        {stat.badge}
                       </span>
-
                     </div>
 
-                    <p className="text-sm text-gray-500">
-                      {stat.title}
-                    </p>
+                    <p className="text-sm text-gray-400">{stat.title}</p>
 
-                    <p className="mt-1 text-2xl font-black">
-                      {stat.value}
-                    </p>
+                    <div className="mt-3 flex items-end justify-between">
+                      <p className="text-3xl font-black">{stat.value}</p>
+                      <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
+                        <TrendingUp size={14} />
+                        {stat.change}
+                      </span>
+                    </div>
 
-                    <p className="mt-1 text-xs text-gray-600">
+                    <p className="mt-2 text-xs text-gray-500">
                       {stat.description}
                     </p>
-
                   </div>
                 );
               })}
-
             </section>
 
             {/* QUICK ACTIONS */}
-            <section className="mt-8">
+            <section className="mb-8">
+              <div className="mb-5">
+                <p className="text-sm-caps text-orange-500">Control Center</p>
 
-              <div className="mb-4">
-                <p className="text-[10px] font-bold tracking-[0.2em] text-orange-500">
-                  CONTROL CENTER
-                </p>
-
-                <h2 className="mt-1 text-xl font-black">
-                  Quick Actions
-                </h2>
+                <h2 className="mt-2 text-2xl font-black">Quick Actions</h2>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    href: "/packages",
+                    icon: Package,
+                    title: "Manage Packages",
+                    desc: "Create and manage Wi-Fi plans.",
+                  },
+                  {
+                    href: "/routers",
+                    icon: Router,
+                    title: "Manage Routers",
+                    desc: "Connect and manage network hardware.",
+                  },
+                  {
+                    href: "/customers",
+                    icon: Users,
+                    title: "View Customers",
+                    desc: "Manage hotspot customers.",
+                  },
+                  {
+                    href: "/payments",
+                    icon: CreditCard,
+                    title: "View Payments",
+                    desc: "Monitor hotspot transactions.",
+                  },
+                ].map((action, idx) => {
+                  const ActionIcon = action.icon;
+                  return (
+                    <Link
+                      key={action.href}
+                      href={action.href}
+                      className="flames-card group animate-slide-up hover:-translate-y-2"
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                    >
+                      <div className="rounded-xl bg-orange-500/10 p-3 w-fit text-orange-500 group-hover:bg-orange-500/20 transition-colors">
+                        <ActionIcon size={21} />
+                      </div>
 
-                <Link
-                  href="/packages"
-                  className="group rounded-2xl border border-[#252525] bg-[#111] p-5 transition hover:border-orange-500/50 hover:bg-[#151515]"
-                >
-                  <Package
-                    size={21}
-                    className="text-orange-500"
-                  />
+                      <h3 className="mt-4 font-bold text-white group-hover:text-orange-400 transition-colors">
+                        {action.title}
+                      </h3>
 
-                  <h3 className="mt-4 font-bold">
-                    Manage Packages
-                  </h3>
+                      <p className="mt-2 text-xs text-gray-500">
+                        {action.desc}
+                      </p>
 
-                  <p className="mt-1 text-xs text-gray-600">
-                    Create and manage Wi-Fi plans.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/routers"
-                  className="group rounded-2xl border border-[#252525] bg-[#111] p-5 transition hover:border-orange-500/50 hover:bg-[#151515]"
-                >
-                  <Router
-                    size={21}
-                    className="text-orange-500"
-                  />
-
-                  <h3 className="mt-4 font-bold">
-                    Manage Routers
-                  </h3>
-
-                  <p className="mt-1 text-xs text-gray-600">
-                    Connect and manage network hardware.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/customers"
-                  className="group rounded-2xl border border-[#252525] bg-[#111] p-5 transition hover:border-orange-500/50 hover:bg-[#151515]"
-                >
-                  <Users
-                    size={21}
-                    className="text-orange-500"
-                  />
-
-                  <h3 className="mt-4 font-bold">
-                    View Customers
-                  </h3>
-
-                  <p className="mt-1 text-xs text-gray-600">
-                    Manage hotspot customers.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/payments"
-                  className="group rounded-2xl border border-[#252525] bg-[#111] p-5 transition hover:border-orange-500/50 hover:bg-[#151515]"
-                >
-                  <CreditCard
-                    size={21}
-                    className="text-orange-500"
-                  />
-
-                  <h3 className="mt-4 font-bold">
-                    View Payments
-                  </h3>
-
-                  <p className="mt-1 text-xs text-gray-600">
-                    Monitor hotspot transactions.
-                  </p>
-                </Link>
-
+                      <div className="mt-4 flex items-center justify-between text-xs text-orange-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span>Open</span>
+                        <ArrowUpRight size={14} />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </section>
 
-            {/* LIVE MONITOR */}
-            <section className="mt-8 grid gap-4 lg:grid-cols-3">
-
-              <div className="rounded-2xl border border-[#252525] bg-[#111] p-6 lg:col-span-2">
-
-                <div className="flex items-center justify-between">
-
+            {/* LIVE MONITOR & STATUS */}
+            <section className="grid gap-4 lg:grid-cols-3">
+              {/* Recent Activity */}
+              <div className="flames-card lg:col-span-2 animate-slide-up">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="text-[10px] font-bold tracking-[0.2em] text-orange-500">
-                      LIVE MONITOR
-                    </p>
+                    <p className="text-sm-caps text-orange-500">Live Monitor</p>
 
-                    <h2 className="mt-1 text-lg font-black">
-                      Recent Activity
-                    </h2>
+                    <h2 className="mt-2 text-xl font-black">Recent Activity</h2>
                   </div>
 
-                  <Activity
-                    size={21}
-                    className="text-orange-500"
-                  />
-
+                  <Activity size={21} className="text-orange-500" />
                 </div>
 
-                <div className="mt-6 flex min-h-40 items-center justify-center rounded-2xl border border-dashed border-[#292929]">
+                <div className="space-y-3">
+                  {recentActivities.map((activity) => {
+                    const ActivityIcon = activity.icon;
+                    return (
+                      <div
+                        key={activity.id}
+                        className="flex items-center justify-between p-4 rounded-xl hover:bg-[#151515] transition-colors border border-transparent hover:border-[#252525]"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="rounded-lg bg-orange-500/10 p-2.5 text-orange-500">
+                            <ActivityIcon size={18} />
+                          </div>
 
-                  <div className="text-center">
+                          <div>
+                            <p className="text-sm font-medium">
+                              {activity.action}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {activity.details}
+                            </p>
+                          </div>
+                        </div>
 
-                    <Activity
-                      size={25}
-                      className="mx-auto text-gray-700"
-                    />
-
-                    <p className="mt-3 text-sm font-medium text-gray-500">
-                      No activity yet
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-700">
-                      Network activity will appear here.
-                    </p>
-
-                  </div>
-
+                        <span className="text-xs text-gray-600 whitespace-nowrap ml-4">
+                          {activity.time}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
+                <button className="flames-button-ghost w-full mt-4">
+                  View All Activity
+                </button>
               </div>
 
-              {/* NETWORK STATUS */}
-              <div className="rounded-2xl border border-[#252525] bg-[#111] p-6">
-
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-500/10 text-green-500">
-                  <ShieldCheck size={21} />
+              {/* Network Status */}
+              <div className="flames-card animate-slide-up" style={{ animationDelay: "150ms" }}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 text-green-500 shadow-lg shadow-green-500/20">
+                  <ShieldCheck size={24} />
                 </div>
 
-                <h2 className="mt-5 font-black">
-                  Network Status
-                </h2>
+                <h2 className="mt-5 text-lg font-black">Network Status</h2>
 
-                <p className="mt-2 text-sm leading-6 text-gray-500">
-                  Your FLAMMES HOTSPOT management system
-                  is online and ready.
+                <p className="mt-3 text-sm leading-6 text-gray-400">
+                  Your FLAMMES HOTSPOT management system is online and ready for
+                  operations.
                 </p>
 
-                <div className="mt-6 rounded-xl border border-[#292929] bg-black/20 p-4">
+                <div className="mt-6 space-y-3 rounded-xl border border-[#252525] bg-black/30 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">Platform</span>
+                    <span className="flex items-center gap-2">
+                      <span className="status-dot status-dot-online" />
+                      <span className="text-sm font-bold text-green-400">
+                        ONLINE
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="divider" />
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      Platform
-                    </span>
-
-                    <span className="text-xs font-bold text-green-500">
-                      ONLINE
-                    </span>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      Database
-                    </span>
-
-                    <span className="text-xs font-bold text-orange-500">
-                      READY
+                    <span className="text-sm text-gray-400">Database</span>
+                    <span className="flex items-center gap-2">
+                      <span className="status-dot status-dot-online" />
+                      <span className="text-sm font-bold text-green-400">
+                        READY
+                      </span>
                     </span>
                   </div>
 
+                  <div className="divider" />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">API</span>
+                    <span className="flex items-center gap-2">
+                      <span className="status-dot status-dot-online" />
+                      <span className="text-sm font-bold text-green-400">
+                        ACTIVE
+                      </span>
+                    </span>
+                  </div>
                 </div>
-
               </div>
-
             </section>
 
             {/* FOOTER */}
-            <footer className="mt-12 border-t border-[#252525] py-6 text-center text-xs text-gray-700">
-              © 2026 FLAMMES TECH. All rights reserved. Powered by FLAMMES TECH.
+            <footer className="mt-12 border-t border-[#252525] py-6 text-center text-xs text-gray-600">
+              © 2026 FLAMMES TECH. All rights reserved. Powered by FLAMMES TECH
+              • v1.0.0
             </footer>
-
           </div>
         </section>
       </div>
