@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../../lib/db/supabase";
+import { supabaseAdmin } from "../../../lib/db/supabase";
 
 export async function GET() {
   const { data, error } = await supabaseAdmin
@@ -26,8 +26,7 @@ export async function POST(request: Request) {
     if (!name || price === undefined || !duration_minutes) {
       return NextResponse.json(
         {
-          error:
-            "Name, price and duration are required.",
+          error: "Name, price and duration are required.",
         },
         { status: 400 }
       );
