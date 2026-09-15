@@ -6,9 +6,6 @@ const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || "";
 const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || "";
 const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE || "174379";
 const MPESA_PASSKEY = process.env.MPESA_PASSKEY || "";
-const MPESA_CALLBACK_URL =
-  process.env.MPESA_CALLBACK_URL ||
-  "https://flammes-hotspot.vercel.app/api/mpesa/callback";
 
 async function getMpesaAccessToken(): Promise<string> {
   const auth = Buffer.from(
@@ -34,11 +31,9 @@ async function getMpesaAccessToken(): Promise<string> {
   }
 }
 
-async function sendSTKPush(
-  phoneNumber: string,
-  amount: number,
-  accountReference: string
-): Promise<{ checkoutRequestID: string; responseCode: string }> {
+async function queryPaymentStatus(
+  checkoutRequestID: string
+): Promise<{ status: string; resultCode: string; resultDesc: string }> {
   const token = await getMpesaAccessToken();
   const timestamp = new Date()
     .toISOString()
@@ -51,7 +46,7 @@ async function sendSTKPush(
 
   try {
     const response = await fetch(
-      "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query",
       {
         method: "POST",
         headers: {
@@ -62,30 +57,20 @@ async function sendSTKPush(
           BusinessShortCode: MPESA_SHORTCODE,
           Password: password,
           Timestamp: timestamp,
-          TransactionType: "CustomerPayBillOnline",
-          Amount: amount,
-          PartyA: phoneNumber,
-          PartyB: MPESA_SHORTCODE,
-          PhoneNumber: phoneNumber,
-          CallBackURL: MPESA_CALLBACK_URL,
-          AccountReference: accountReference,
-          TransactionDesc: "WiFi Hotspot Access",
+          CheckoutRequestID: checkoutRequestID,
         }),
       }
     );
 
     const data = (await response.json()) as any;
 
-    if (data.ResponseCode !== "0") {
-      throw new Error(data.ResponseDescription || "STK Push failed");
-    }
-
     return {
-      checkoutRequestID: data.CheckoutRequestID,
-      responseCode: data.ResponseCode,
+      status: data.ResultCode === "0" ? "successful" : "pending",
+      resultCode: data.ResultCode,
+      resultDesc: data.ResultDesc,
     };
   } catch (error) {
-    console.error("STK Push error:", error);
+    console.error("Query status error:", error);
     throw error;
   }
 }
@@ -93,52 +78,26 @@ async function sendSTKPush(
 export const POST = withErrorHandling(async (req: NextRequest) => {
   const body = await req.json();
 
-  if (!body.phoneNumber || !body.amount || !body.packageId) {
+  if (!body.checkoutRequestID) {
     return NextResponse.json(
-      errorResponse("phoneNumber, amount, and packageId are required"),
-      { status: 400 }
-    );
-  }
-
-  let cleanPhone = body.phoneNumber.replace(/\D/g, "");
-  if (cleanPhone.startsWith("0")) {
-    cleanPhone = "254" + cleanPhone.substring(1);
-  } else if (!cleanPhone.startsWith("254")) {
-    cleanPhone = "254" + cleanPhone;
-  }
-
-  if (!/^254\d{9}$/.test(cleanPhone)) {
-    return NextResponse.json(
-      errorResponse("Invalid Kenyan phone number format"),
+      errorResponse("checkoutRequestID is required"),
       { status: 400 }
     );
   }
 
   try {
-    const sessionId = `FLAMES-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
-
-    const stkResult = await sendSTKPush(
-      cleanPhone,
-      body.amount,
-      sessionId
-    );
+    const paymentStatus = await queryPaymentStatus(body.checkoutRequestID);
 
     return NextResponse.json(
       successResponse({
-        sessionId,
-        checkoutRequestID: stkResult.checkoutRequestID,
-        phoneNumber: cleanPhone,
-        amount: body.amount,
-        packageId: body.packageId,
-        status: "pending",
-        message: "STK push sent to your phone. Enter your M-Pesa PIN to continue.",
-      }),
-      { status: 201 }
+        checkoutRequestID: body.checkoutRequestID,
+        ...paymentStatus,
+      })
     );
   } catch (error: any) {
-    console.error("M-Pesa error:", error);
+    console.error("Payment query error:", error);
     return NextResponse.json(
-      errorResponse(error.message || "Failed to process payment"),
+      errorResponse(error.message || "Failed to query payment status"),
       { status: 400 }
     );
   }
