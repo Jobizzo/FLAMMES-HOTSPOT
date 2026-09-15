@@ -1,411 +1,234 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Users,
+  Plus,
+  Search,
+  MoreVertical,
+  Phone,
+  Mail,
+} from "lucide-react";
 
-type Customer = {
+interface Customer {
   id: string;
   name: string;
   phone: string;
-  email?: string | null;
+  email?: string;
   status: "active" | "inactive" | "expired";
-  created_at: string;
-};
+  createdAt: string;
+}
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", email: "" });
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
-  async function loadCustomers() {
+  const fetchCustomers = async () => {
     try {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch("/api/customers");
-
-      if (!response.ok) {
-        throw new Error("Failed to load customers.");
+      const res = await fetch("/api/customers");
+      const data = await res.json();
+      if (data.success) {
+        setCustomers(data.data.customers);
       }
-
-      const data = await response.json();
-
-      setCustomers(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong."
-      );
+    } catch (error) {
+      console.error("Failed to fetch customers", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  useEffect(() => {
-    loadCustomers();
-  }, []);
-
-  async function addCustomer(e: React.FormEvent) {
+  const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!name.trim() || !phone.trim()) {
-      setError("Name and phone number are required.");
-      return;
-    }
-
     try {
-      setSaving(true);
-      setError("");
-
-      const response = await fetch("/api/customers", {
+      const res = await fetch("/api/customers", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          email: email.trim() || undefined,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Failed to add customer."
-        );
+      const data = await res.json();
+      if (data.success) {
+        setCustomers([...customers, data.data]);
+        setFormData({ name: "", phone: "", email: "" });
+        setShowModal(false);
       }
-
-      setCustomers((current) => [data, ...current]);
-
-      setName("");
-      setPhone("");
-      setEmail("");
-      setShowForm(false);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong."
-      );
-    } finally {
-      setSaving(false);
+    } catch (error) {
+      console.error("Failed to add customer", error);
     }
-  }
+  };
 
-  const filteredCustomers = useMemo(() => {
-    const query = search.toLowerCase().trim();
-
-    if (!query) {
-      return customers;
-    }
-
-    return customers.filter(
-      (customer) =>
-        customer.name.toLowerCase().includes(query) ||
-        customer.phone.toLowerCase().includes(query) ||
-        (customer.email || "")
-          .toLowerCase()
-          .includes(query)
-    );
-  }, [customers, search]);
-
-  const activeCount = customers.filter(
-    (customer) => customer.status === "active"
-  ).length;
-
-  const expiredCount = customers.filter(
-    (customer) => customer.status === "expired"
-  ).length;
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.phone.includes(searchTerm)
+  );
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-
-        {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-2 text-sm font-semibold uppercase tracking-widest text-orange-400">
-              FLAMMES HOTSPOT
+    <main className="min-h-screen bg-[#070707]">
+      <div className="flex min-h-screen flex-col">
+        <header className="sticky top-0 z-20 border-b border-[#252525] bg-[#0b0b0b]/95 px-8 py-4 backdrop-blur">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm-caps text-orange-500">Management</p>
+              <h1 className="text-2xl font-black text-white">Customers</h1>
             </div>
-
-            <h1 className="text-3xl font-bold sm:text-4xl">
-              Customers
-            </h1>
-
-            <p className="mt-2 text-slate-400">
-              Manage customers connected to your hotspot.
-            </p>
-          </div>
-
-          <button
-            onClick={() => {
-              setShowForm(!showForm);
-              setError("");
-            }}
-            className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
-          >
-            {showForm ? "Close" : "+ Add Customer"}
-          </button>
-        </div>
-
-        {/* Statistics */}
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <p className="text-sm text-slate-400">
-              Total Customers
-            </p>
-
-            <p className="mt-2 text-3xl font-bold">
-              {customers.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <p className="text-sm text-slate-400">
-              Active
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-green-400">
-              {activeCount}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <p className="text-sm text-slate-400">
-              Expired
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-red-400">
-              {expiredCount}
-            </p>
-          </div>
-
-        </div>
-
-        {/* Add Customer Form */}
-        {showForm && (
-          <form
-            onSubmit={addCustomer}
-            className="mb-8 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6"
-          >
-            <h2 className="mb-5 text-xl font-bold">
-              Add New Customer
-            </h2>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-
-              <div>
-                <label className="mb-2 block text-sm text-slate-400">
-                  Full Name
-                </label>
-
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Customer name"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm text-slate-400">
-                  Phone Number
-                </label>
-
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="07XXXXXXXX"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm text-slate-400">
-                  Email
-                </label>
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="customer@email.com"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-orange-500"
-                />
-              </div>
-
-            </div>
-
             <button
-              type="submit"
-              disabled={saving}
-              className="mt-5 rounded-xl bg-orange-500 px-6 py-3 font-semibold hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => setShowModal(true)}
+              className="flames-button flex items-center gap-2"
             >
-              {saving ? "Saving..." : "Save Customer"}
+              <Plus size={18} />
+              Add Customer
             </button>
-          </form>
-        )}
-
-        {/* Error */}
-        {error && (
-          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
-            {error}
           </div>
-        )}
+        </header>
 
-        {/* Search */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row">
-
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search customers by name, phone or email..."
-            className="flex-1 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-white outline-none focus:border-orange-500"
-          />
-
-          <button
-            onClick={loadCustomers}
-            className="rounded-xl border border-slate-700 bg-slate-900 px-5 py-3 font-semibold hover:bg-slate-800"
-          >
-            Refresh
-          </button>
-
+        <div className="border-b border-[#252525] bg-[#0b0b0b] px-8 py-4">
+          <div className="relative max-w-md">
+            <Search
+              size={18}
+              className="absolute left-3 top-3 text-gray-600"
+            />
+            <input
+              type="text"
+              placeholder="Search customers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flames-input pl-10"
+            />
+          </div>
         </div>
 
-        {/* Customer List */}
-        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-
-          <div className="border-b border-slate-800 px-5 py-4">
-            <h2 className="font-bold">
-              Customer List
-            </h2>
-          </div>
-
+        <div className="flex-1 px-8 py-6">
           {loading ? (
-            <div className="p-10 text-center text-slate-400">
-              Loading customers...
+            <div className="flex items-center justify-center py-12">
+              <p className="text-gray-500">Loading customers...</p>
             </div>
           ) : filteredCustomers.length === 0 ? (
-            <div className="p-10 text-center">
-
-              <div className="mb-3 text-4xl">
-                👥
-              </div>
-
-              <h3 className="text-lg font-semibold">
-                {search
-                  ? "No customers found"
-                  : "No customers yet"}
-              </h3>
-
-              <p className="mt-2 text-sm text-slate-400">
-                {search
-                  ? "Try a different search."
-                  : "Add your first customer to get started."}
+            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#292929] py-12">
+              <Users size={32} className="text-gray-700 mb-3" />
+              <p className="text-gray-500 font-medium">No customers yet</p>
+              <p className="text-gray-600 text-sm mt-1">
+                Add your first customer to get started
               </p>
-
+              <button
+                onClick={() => setShowModal(true)}
+                className="flames-button mt-4"
+              >
+                Add Customer
+              </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-
-              <table className="w-full min-w-[700px]">
-
-                <thead className="bg-slate-950/50">
-                  <tr className="text-left text-sm text-slate-400">
-
-                    <th className="px-5 py-4">
-                      Customer
-                    </th>
-
-                    <th className="px-5 py-4">
-                      Phone
-                    </th>
-
-                    <th className="px-5 py-4">
-                      Email
-                    </th>
-
-                    <th className="px-5 py-4">
-                      Status
-                    </th>
-
-                    <th className="px-5 py-4">
-                      Joined
-                    </th>
-
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  {filteredCustomers.map((customer) => (
-                    <tr
-                      key={customer.id}
-                      className="border-t border-slate-800"
-                    >
-
-                      <td className="px-5 py-4 font-semibold">
-                        {customer.name}
-                      </td>
-
-                      <td className="px-5 py-4 text-slate-300">
-                        {customer.phone}
-                      </td>
-
-                      <td className="px-5 py-4 text-slate-400">
-                        {customer.email || "—"}
-                      </td>
-
-                      <td className="px-5 py-4">
-
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            customer.status === "active"
-                              ? "bg-green-500/10 text-green-400"
-                              : customer.status === "expired"
-                              ? "bg-red-500/10 text-red-400"
-                              : "bg-slate-700 text-slate-300"
-                          }`}
-                        >
-                          {customer.status}
+            <div className="grid gap-4">
+              {filteredCustomers.map((customer) => (
+                <div
+                  key={customer.id}
+                  className="flames-card flex items-center justify-between p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                      <Users size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white">{customer.name}</h3>
+                      <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                        <span className="flex items-center gap-1">
+                          <Phone size={14} />
+                          {customer.phone}
                         </span>
-
-                      </td>
-
-                      <td className="px-5 py-4 text-slate-400">
-                        {new Date(
-                          customer.created_at
-                        ).toLocaleDateString()}
-                      </td>
-
-                    </tr>
-                  ))}
-
-                </tbody>
-
-              </table>
-
+                        {customer.email && (
+                          <span className="flex items-center gap-1">
+                            <Mail size={14} />
+                            {customer.email}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="badge badge-success text-xs">
+                      {customer.status}
+                    </span>
+                    <button className="rounded-lg p-2 hover:bg-[#181818]">
+                      <MoreVertical size={18} className="text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-
         </div>
-
-        {/* Footer */}
-        <footer className="mt-10 border-t border-slate-800 pt-6 text-center text-sm text-slate-500">
-          © 2026 FLAMMES TECH. All rights reserved. Powered by FLAMMES TECH
-        </footer>
-
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur">
+          <div className="flames-card w-full max-w-md p-6">
+            <h2 className="text-xl font-black text-white mb-4">Add Customer</h2>
+            <form onSubmit={handleAddCustomer} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-400 mb-2 block">
+                  Customer Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="flames-input"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-400 mb-2 block">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="flames-input"
+                  placeholder="+254712345678"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-400 mb-2 block">
+                  Email (Optional)
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="flames-input"
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flames-button-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="flames-button flex-1">
+                  Add Customer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

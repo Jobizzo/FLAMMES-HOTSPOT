@@ -1,57 +1,45 @@
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../lib/db/supabase";
-export async function GET() {
-  const { data, error } = await supabaseAdmin
-    .from("customers")
-    .select("*")
-    .order("created_at", { ascending: false });
+import { NextRequest, NextResponse } from "next/server";
+import { successResponse, errorResponse } from "@/lib/api-utils";
+import { withErrorHandling } from "@/lib/api-middleware";
 
-  if (error) {
+const mockCustomers = [
+  {
+    id: "1",
+    name: "John Doe",
+    phone: "+254712345678",
+    email: "john@example.com",
+    status: "active" as const,
+    createdAt: new Date().toISOString(),
+  },
+];
+
+export const GET = withErrorHandling(async (req: NextRequest) => {
+  return NextResponse.json(
+    successResponse({
+      customers: mockCustomers,
+      total: mockCustomers.length,
+    })
+  );
+});
+
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  const body = await req.json();
+
+  if (!body.name || !body.phone) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      errorResponse("Name and phone are required"),
+      { status: 400 }
     );
   }
 
-  return NextResponse.json(data);
-}
+  const newCustomer = {
+    id: Date.now().toString(),
+    name: body.name,
+    phone: body.phone,
+    email: body.email || null,
+    status: "active",
+    createdAt: new Date().toISOString(),
+  };
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-
-    const { name, phone, email } = body;
-
-    if (!name || !phone) {
-      return NextResponse.json(
-        { error: "Name and phone are required." },
-        { status: 400 }
-      );
-    }
-
-    const { data, error } = await supabaseAdmin
-      .from("customers")
-      .insert({
-        name,
-        phone,
-        email: email || null,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(data, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid request." },
-      { status: 400 }
-    );
-    }
-}
-  
+  return NextResponse.json(successResponse(newCustomer), { status: 201 });
+});
