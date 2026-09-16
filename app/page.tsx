@@ -1,224 +1,194 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
   Activity,
   BarChart3,
   Bell,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
   CreditCard,
+  Gauge,
+  Globe2,
   LayoutDashboard,
   Menu,
   Package,
+  Radio,
+  Receipt,
   Router,
-  Search,
   Settings,
+  Ticket,
   Users,
   Wifi,
   X,
-  Network,
-  Ticket,
-  Receipt,
-  ShieldCheck,
-  UserRound,
-  CircleDollarSign,
-  TrendingUp,
+  UserPlus,
+  Boxes,
+  HelpCircle,
 } from "lucide-react";
 
 const navigation = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Customers", href: "/customers", icon: Users },
-  { label: "Activation", href: "/sessions", icon: Ticket },
-  { label: "Data Usage", href: "/reports", icon: Activity },
-  { label: "Hotspot Vouchers", href: "/packages", icon: Ticket },
-  { label: "Hotspot Binding", href: "/routers", icon: Wifi },
-  { label: "Packages / Plans", href: "/packages", icon: Package },
-  { label: "Transactions", href: "/payments", icon: Receipt },
-  { label: "Network", href: "/routers", icon: Network },
+  { label: "Packages", href: "/packages", icon: Package, expandable: true },
+  { label: "Sessions", href: "/sessions", icon: Activity, expandable: true },
+  { label: "Payments", href: "/payments", icon: CreditCard, expandable: true },
+  { label: "Routers", href: "/routers", icon: Router, expandable: true },
   { label: "Reports", href: "/reports", icon: BarChart3 },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Notifications", href: "/reports", icon: Bell },
+  { label: "Settings", href: "/settings", icon: Settings, expandable: true },
 ];
 
-const stats = [
-  { label: "INCOME TODAY", value: "KSh. 0", icon: CircleDollarSign, tone: "orange", link: "View Reports" },
-  { label: "INCOME THIS MONTH", value: "KSh. 0", icon: TrendingUp, tone: "green", link: "View Reports" },
-  { label: "ACTIVE / EXPIRED", value: "0 / 0", icon: UserRound, tone: "blue", link: "View All" },
-  { label: "TOTAL USERS", value: "0", icon: Users, tone: "red", link: "View All" },
-  { label: "HOTSPOT ONLINE USERS", value: "0", icon: Wifi, tone: "teal", link: "View All" },
-  { label: "PPPOE ONLINE USERS", value: "0", icon: Network, tone: "purple", link: "View All" },
-  { label: "STATIC ONLINE USERS", value: "0", icon: Router, tone: "green", link: "View All" },
-  { label: "TOTAL ONLINE USERS", value: "0", icon: Users, tone: "brown", link: "View All" },
+const quickLinks = [
+  { label: "Add Customer", href: "/customers", icon: UserPlus },
+  { label: "Create Package", href: "/packages", icon: Boxes },
+  { label: "Generate Voucher", href: "/packages", icon: Ticket },
+  { label: "Help & Support", href: "/reports", icon: HelpCircle },
 ];
 
-const toneClasses: Record<string, string> = {
-  orange: "bg-orange-50 border-orange-100 text-orange-700",
-  green: "bg-emerald-50 border-emerald-100 text-emerald-700",
-  blue: "bg-blue-50 border-blue-100 text-blue-700",
-  red: "bg-red-50 border-red-100 text-red-700",
-  teal: "bg-teal-50 border-teal-100 text-teal-700",
-  purple: "bg-violet-50 border-violet-100 text-violet-700",
-  brown: "bg-amber-50 border-amber-100 text-amber-700",
+const metrics = [
+  { title: "Total Routers", value: "0", sub: "Online: 0   •   Offline: 0", icon: Router, tone: "blue", href: "/routers", action: "View Routers" },
+  { title: "Active Users", value: "0", sub: "Online: 0   •   Offline: 0", icon: Users, tone: "green", href: "/customers", action: "View Users" },
+  { title: "Active Sessions", value: "0", sub: "Expiring Soon: 0", icon: Gauge, tone: "orange", href: "/sessions", action: "View Sessions" },
+  { title: "Total Customers", value: "0", sub: "New This Month: 0", icon: Users, tone: "purple", href: "/customers", action: "View Customers" },
+  { title: "Hotspot Online Users", value: "0", sub: "Total Connected: 0", icon: Wifi, tone: "cyan", href: "/sessions", action: "View Online Users" },
+  { title: "PPPoE Online Users", value: "0", sub: "Connected: 0", icon: Radio, tone: "indigo", href: "/sessions", action: "View PPPoE Users" },
+  { title: "Static Online Users", value: "0", sub: "Connected: 0", icon: Globe2, tone: "slate", href: "/sessions", action: "View Static Users" },
+  { title: "Total Online Users", value: "0", sub: "Across All Networks", icon: Users, tone: "red", href: "/sessions", action: "View All Users" },
+];
+
+const tone: Record<string, string> = {
+  blue: "bg-blue-600",
+  green: "bg-emerald-500",
+  orange: "bg-orange-500",
+  purple: "bg-violet-600",
+  cyan: "bg-cyan-500",
+  indigo: "bg-blue-700",
+  slate: "bg-slate-600",
+  red: "bg-rose-500",
 };
+
+const chartValues = [18, 22, 21, 28, 30, 31, 39, 44, 52, 63, 76, 68];
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const payments = [
+  ["—", "No customers yet", "—", "KSh 0", "—", "No transactions", "—"],
+  ["—", "Connect M-Pesa", "—", "KSh 0", "M-Pesa", "Configure gateway", "—"],
+  ["—", "Create a package", "—", "KSh 0", "—", "Waiting for sales", "—"],
+  ["—", "Add your first router", "—", "KSh 0", "—", "Network offline", "—"],
+];
+
+function Logo({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`flex items-center ${compact ? "justify-center" : "gap-2.5"}`}>
+      <Image src="/flammes-tech-logo.svg" alt="FLAMMES TECH" width={compact ? 42 : 178} height={compact ? 34 : 42} className={compact ? "h-9 w-auto object-contain" : "h-10 w-auto object-contain"} priority />
+    </div>
+  );
+}
+
+function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () => void }) {
+  return (
+    <aside className={`${mobile ? "relative h-full w-72" : "fixed inset-y-0 left-0 hidden w-[276px] md:block"} z-40 overflow-y-auto bg-[#0a1422] text-slate-200`}>
+      <div className="flex h-[76px] items-center border-b border-slate-800/80 px-5">
+        <Logo />
+        {mobile && <button onClick={onClose} className="ml-auto rounded-lg p-2 hover:bg-slate-800"><X size={20} /></button>}
+      </div>
+
+      <div className="px-3 py-4">
+        <nav className="space-y-1">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            const active = item.href === "/";
+            return (
+              <Link key={item.label} href={item.href} onClick={onClose} className={`flex h-11 items-center gap-3 rounded-lg px-3.5 text-[13px] font-semibold transition ${active ? "bg-orange-500 text-white shadow-sm" : "text-slate-300 hover:bg-slate-800/90 hover:text-white"}`}>
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                <span>{item.label}</span>
+                {item.expandable && <ChevronRight size={15} className="ml-auto opacity-70" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="my-5 border-t border-slate-800" />
+        <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</div>
+        <div className="mt-2 space-y-1">
+          {quickLinks.map((item) => {
+            const Icon = item.icon;
+            return <Link key={item.label} href={item.href} onClick={onClose} className="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-300 hover:bg-slate-800 hover:text-white"><Icon size={17} />{item.label}</Link>;
+          })}
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 border-t border-slate-800 bg-[#09111d] p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white"><Wifi size={20} /></div>
+          <div><div className="text-sm font-bold text-white">FLAMMES HOTSPOT</div><div className="text-[10px] text-slate-400">Fast • Reliable • Secure</div></div>
+        </div>
+      </div>
+    </aside>
+  );
+}
 
 export default function Dashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] text-gray-900">
-      <aside className="admin-sidebar fixed inset-y-0 left-0 z-40 hidden w-64 overflow-y-auto border-r border-gray-800 md:block">
-        <div className="flex h-16 items-center gap-3 border-b border-gray-800 px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-orange-500 text-white font-black">F</div>
-          <div>
-            <div className="text-base font-extrabold tracking-tight text-white">FLAMMES</div>
-            <div className="text-[9px] font-bold tracking-[.22em] text-orange-400">HOTSPOT</div>
-          </div>
-        </div>
-        <div className="p-3">
-          <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-wider text-gray-500">Management</div>
-          <nav className="space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const active = item.href === "/";
-              return (
-                <Link key={item.label} href={item.href} className={`admin-nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium ${active ? "active" : ""}`}>
-                  <Icon size={16} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 border-t border-gray-800 bg-[#0b1220] p-3">
-          <div className="flex items-center gap-2 rounded-md bg-gray-800/70 p-3">
-            <span className="status-dot status-dot-online" />
-            <div>
-              <div className="text-xs font-semibold text-white">System Online</div>
-              <div className="text-[10px] text-gray-400">Ready for operations</div>
-            </div>
-          </div>
-        </div>
-      </aside>
+    <div className="min-h-screen bg-[#f5f7fa] text-slate-900">
+      <Sidebar />
+      {mobileOpen && <div className="fixed inset-0 z-50 md:hidden"><button className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} aria-label="Close sidebar" /><Sidebar mobile onClose={() => setMobileOpen(false)} /></div>}
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <button className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} aria-label="Close menu" />
-          <aside className="admin-sidebar relative h-full w-72 overflow-y-auto p-3">
-            <div className="flex h-14 items-center justify-between px-2">
-              <div className="font-extrabold text-white">FLAMMES HOTSPOT</div>
-              <button onClick={() => setMobileOpen(false)} className="rounded p-2 hover:bg-gray-800"><X size={20} /></button>
-            </div>
-            <nav className="space-y-1">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                return <Link key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`admin-nav-item flex items-center gap-3 px-3 py-2.5 text-sm ${item.href === "/" ? "active" : ""}`}><Icon size={17} />{item.label}</Link>;
-              })}
-            </nav>
-          </aside>
-        </div>
-      )}
-
-      <main className="min-w-0 md:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm md:px-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setMobileOpen(true)} className="rounded-md p-2 hover:bg-gray-100 md:hidden" aria-label="Open menu"><Menu size={21} /></button>
-            <div className="hidden text-sm text-gray-500 sm:block">Dashboard</div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative hidden w-64 md:block">
-              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
-              <input className="h-9 w-full rounded-md border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs outline-none focus:border-orange-400" placeholder="Search users..." />
-            </div>
-            <button className="relative rounded-md border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50" aria-label="Notifications"><Bell size={17} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-orange-500" /></button>
-            <div className="hidden items-center gap-2 sm:flex">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-700">A</div>
-              <span className="text-xs font-semibold text-gray-700">Administrator</span>
-            </div>
+      <div className="md:pl-[276px]">
+        <header className="sticky top-0 z-30 flex h-[68px] items-center border-b border-slate-200 bg-[#0b1726] px-4 text-white shadow-sm md:px-6">
+          <button onClick={() => setMobileOpen(true)} className="mr-3 rounded-lg p-2 hover:bg-slate-800 md:hidden" aria-label="Open menu"><Menu size={21} /></button>
+          <div className="hidden items-center gap-2 md:flex"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /><span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">System Online</span></div>
+          <div className="ml-auto flex items-center gap-4">
+            <button className="relative rounded-lg p-2 text-slate-300 hover:bg-slate-800" aria-label="Notifications"><Bell size={19}/><span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">0</span></button>
+            <div className="hidden items-center gap-2 border-l border-slate-700 pl-4 sm:flex"><Wifi size={16} className="text-cyan-400" /><span className="text-xs text-slate-300">Network:</span><span className="text-xs font-bold">FLAMMES HOTSPOT</span><ChevronDown size={14}/></div>
+            <div className="flex items-center gap-2 border-l border-slate-700 pl-4"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 font-bold">A</div><div className="hidden sm:block"><div className="text-xs font-bold">Admin</div><div className="text-[9px] text-slate-400">Super Administrator</div></div><ChevronDown size={14}/></div>
           </div>
         </header>
 
-        <div className="p-4 md:p-6">
-          <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="mt-1 text-xs text-gray-500">Monitor your hotspot, customers, revenue and network activity.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600"><span className="status-dot status-dot-online" /> System online</span>
-              <button className="flames-button">Refresh Data</button>
+        <main className="p-4 md:p-6 lg:p-7">
+          <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div><h1 className="text-[27px] font-extrabold tracking-tight text-slate-900">Dashboard</h1><p className="mt-1 text-[13px] text-slate-500">Welcome back, Admin! Here's what's happening with your hotspot system.</p></div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-2 text-xs text-slate-600"><CalendarDays size={18}/><span>Tue, 16 Sep 2026<br/><b>20:42</b></span></div>
+              <div className="hidden h-10 w-px bg-slate-200 sm:block" />
+              <label className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Router View<select className="mt-1 block h-10 min-w-[240px] rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm outline-none focus:border-blue-500"><option>All Routers - System Wide</option></select></label>
             </div>
           </div>
 
-          <section className="mb-5 overflow-hidden rounded-md border border-blue-600 bg-white">
-            <div className="flex flex-col gap-3 bg-blue-600 px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold"><Router size={17} /> Router View</div>
-              <select className="rounded-md border-0 bg-white px-3 py-2 text-xs text-gray-700 outline-none"><option>All Routers - System Wide</option></select>
-            </div>
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {metrics.map((metric) => { const Icon = metric.icon; return <Link key={metric.title} href={metric.href} className={`${tone[metric.tone]} group min-h-[125px] rounded-lg p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}><div className="flex items-start gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15"><Icon size={25}/></div><div className="min-w-0"><div className="text-xs font-semibold opacity-95">{metric.title}</div><div className="mt-1 text-[28px] font-extrabold leading-none">{metric.value}</div><div className="mt-2 whitespace-pre-line text-[10px] opacity-90">{metric.sub}</div></div></div><div className="mt-3 text-[11px] font-bold">{metric.action} <span className="inline-block transition group-hover:translate-x-1">→</span></div></Link>; })}
           </section>
 
-          <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className={`rounded-lg border p-4 shadow-sm ${toneClasses[stat.tone]}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-2xl font-bold leading-none">{stat.value}</div>
-                      <div className="mt-2 text-[10px] font-bold uppercase tracking-wide opacity-80">{stat.label}</div>
-                    </div>
-                    <Icon size={27} className="opacity-35" />
-                  </div>
-                  <div className="mt-4 border-t border-current/10 pt-2 text-[10px] font-medium opacity-75">{stat.link} →</div>
-                </div>
-              );
-            })}
-          </section>
-
-          <div className="grid gap-5 xl:grid-cols-3">
-            <section className="flames-card overflow-hidden xl:col-span-2">
-              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-800"><BarChart3 size={17} className="text-blue-600" /> Monthly Registered Customers</div>
-                <div className="flex gap-1"><button className="rounded bg-gray-100 px-2 py-1 text-xs">−</button><button className="rounded bg-gray-100 px-2 py-1 text-xs">×</button></div>
-              </div>
-              <div className="p-4">
-                <div className="mb-2 flex items-center gap-2 text-[11px] text-gray-500"><span className="h-2 w-6 rounded-sm bg-blue-500" /> Registered Members</div>
-                <div className="relative h-56 border-l border-b border-gray-200 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_44px,#eef0f2_45px)]">
-                  <div className="absolute bottom-0 left-0 right-0 flex h-full items-end justify-around px-4">
-                    {[12, 28, 20, 42, 34, 58, 48, 68, 55, 76, 63, 82].map((height, i) => <div key={i} className="w-[5%] max-w-8 rounded-t bg-blue-500/70" style={{ height: `${height}%` }} />)}
-                  </div>
-                </div>
-                <div className="mt-2 flex justify-between text-[9px] text-gray-400"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
-              </div>
-            </section>
-
+          <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(330px,.95fr)]">
             <div className="space-y-5">
               <section className="flames-card overflow-hidden">
-                <div className="bg-blue-600 px-4 py-3 text-sm font-semibold text-white">Payment Gateway</div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between border-b border-gray-100 py-3"><span className="text-xs text-gray-500">M-Pesa</span><span className="badge badge-success">Ready</span></div>
-                  <div className="flex items-center justify-between py-3"><span className="text-xs text-gray-500">Payment API</span><span className="badge badge-warning">Configure</span></div>
-                  <Link href="/payments" className="mt-2 inline-block text-xs font-semibold text-blue-600">Manage payment settings →</Link>
-                </div>
+                <div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><BarChart3 size={18}/>Monthly Registered Customers</div><div className="flex gap-1"><button className="rounded bg-white/15 px-2 py-1 text-sm hover:bg-white/25">−</button><button className="rounded bg-white/15 px-2 py-1 text-sm hover:bg-white/25">↗</button></div></div>
+                <div className="p-4 md:p-5"><div className="mb-3 flex items-center justify-center gap-2 text-[11px] text-slate-500"><span className="h-2.5 w-8 rounded-sm bg-blue-500"/>Registered Members</div><div className="relative h-52 border-b border-l border-slate-200 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_40px,#e8edf3_41px)]"><div className="absolute inset-x-4 bottom-0 flex h-full items-end justify-between gap-2">{chartValues.map((v, i) => <div key={months[i]} className="flex h-full w-full flex-col justify-end"><div className="mx-auto w-full max-w-7 rounded-t bg-blue-500/80" style={{height:`${v}%`}} /></div>)}</div></div><div className="mt-2 flex justify-between px-1 text-[10px] text-slate-400">{months.map(m=><span key={m}>{m}</span>)}</div></div>
               </section>
 
               <section className="flames-card overflow-hidden">
-                <div className="bg-blue-600 px-4 py-3 text-sm font-semibold text-white">All Users Insights</div>
-                <div className="p-4">
-                  <div className="flex items-start gap-3 rounded-md bg-sky-50 p-3">
-                    <ShieldCheck size={21} className="mt-0.5 text-blue-600" />
-                    <div><div className="text-xs font-semibold text-gray-800">System support</div><p className="mt-1 text-[11px] leading-5 text-gray-500">Your hotspot dashboard is ready. Connect routers and create packages to begin serving customers.</p></div>
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-center"><div className="rounded border border-gray-200 p-3"><div className="text-lg font-bold">0</div><div className="text-[9px] uppercase text-gray-400">Online</div></div><div className="rounded border border-gray-200 p-3"><div className="text-lg font-bold">0</div><div className="text-[9px] uppercase text-gray-400">Routers</div></div></div>
-                </div>
+                <div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><Receipt size={17}/>Recent Payments</div><Link href="/payments" className="text-xs font-semibold hover:underline">View All →</Link></div>
+                <div className="overflow-x-auto"><table className="admin-table min-w-[720px]"><thead><tr><th>#</th><th>Customer</th><th>Package</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody>{payments.map((row, i)=><tr key={i}>{row.map((cell,j)=><td key={j}>{j===5 ? <span className={`badge ${i===1 ? "badge-warning" : "badge-success"}`}>{cell}</span> : cell}</td>)}</tr>)}</tbody></table></div>
               </section>
             </div>
-          </div>
 
-          <section className="mt-5 grid gap-5 lg:grid-cols-2">
-            <div className="flames-card p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">Quick Actions</h2><span className="text-[10px] text-gray-400">Control center</span></div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{[[Users,"Customers","/customers"],[Package,"Packages","/packages"],[Router,"Routers","/routers"],[CreditCard,"Payments","/payments"]].map(([Icon,label,href]) => { const I = Icon as typeof Users; return <Link key={label as string} href={href as string} className="rounded-md border border-gray-200 p-3 hover:border-orange-300 hover:bg-orange-50"><I size={17} className="text-orange-500" /><div className="mt-2 text-xs font-semibold">{label as string}</div></Link>; })}</div></div>
-            <div className="flames-card p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">Network Status</h2><span className="badge badge-success">Operational</span></div><div className="grid grid-cols-3 gap-2"><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Routers</div><div className="mt-1 text-xl font-bold">0</div></div><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Sessions</div><div className="mt-1 text-xl font-bold">0</div></div><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Customers</div><div className="mt-1 text-xl font-bold">0</div></div></div></div>
+            <div className="space-y-5">
+              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><CreditCard size={17}/>Payment Gateway</div><span className="badge bg-emerald-500 text-white">● M-Pesa Connected</span></div><div className="p-4"><div className="flex items-center gap-4"><div className="text-xl font-extrabold text-emerald-600">M-PESA</div><div className="h-12 w-px bg-slate-200"/><div className="flex-1 space-y-1 text-[11px]"><div><span className="text-slate-500">Status</span><b className="ml-5 text-emerald-600">● Active</b></div><div><span className="text-slate-500">Merchant ID</span><b className="ml-2">Not configured</b></div><div><span className="text-slate-500">Transaction Fee</span><b className="ml-2">—</b></div></div></div><Link href="/payments" className="mt-4 inline-flex rounded-md bg-orange-500 px-3 py-2 text-[11px] font-bold text-white hover:bg-orange-600">View Transactions →</Link></div></section>
+
+              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center gap-2 bg-blue-600 px-4 text-sm font-bold text-white"><Users size={17}/>User Insights</div><div className="p-4"><div className="flex items-center gap-4"><div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full" style={{background:"conic-gradient(#2563eb 0deg 280deg,#dbeafe 280deg 360deg)"}}><div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-lg font-extrabold text-slate-700">0%</div></div><div className="flex-1 space-y-2 text-[11px]"><div className="flex justify-between"><span className="text-emerald-600">● Active Users</span><b>0</b></div><div className="flex justify-between"><span className="text-orange-500">● Inactive Users</span><b>0</b></div><div className="flex justify-between"><span className="text-blue-600">● New Users (7 days)</span><b>0</b></div><div className="flex justify-between"><span className="text-slate-400">● Total Users</span><b>0</b></div></div></div><Link href="/reports" className="mt-4 block text-right text-[11px] font-bold text-blue-600">View Analytics →</Link></div></section>
+
+              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center justify-between bg-orange-500 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><Activity size={17}/>Quick Actions</div><span className="text-xs font-semibold">View All →</span></div><div className="grid grid-cols-2 divide-x divide-y divide-slate-200 sm:grid-cols-4 sm:divide-y-0">{[[UserPlus,"Add Customer","/customers"],[Package,"Create Package","/packages"],[Ticket,"Generate Voucher","/packages"],[BarChart3,"View Reports","/reports"]].map(([Icon,label,href])=>{const I=Icon as typeof UserPlus;return <Link key={label as string} href={href as string} className="flex min-h-[92px] flex-col items-center justify-center gap-2 p-3 text-center hover:bg-orange-50"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-blue-600"><I size={18}/></span><span className="text-[11px] font-bold text-slate-700">{label as string}</span></Link>})}</div></section>
+            </div>
           </section>
-        </div>
-      </main>
+
+          <footer className="mt-6 flex flex-col gap-2 border-t border-slate-200 py-4 text-[10px] text-slate-400 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-2"><Image src="/flammes-tech-logo.svg" alt="FLAMMES TECH" width={110} height={25} className="h-6 w-auto object-contain opacity-70"/><span>FLAMMES HOTSPOT</span><span>•</span><span>Powered by FLAMMES TECH</span></div><span>© 2026 FLAMMES TECH. All rights reserved.</span></footer>
+        </main>
+      </div>
     </div>
   );
 }
