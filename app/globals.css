@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f6f8;
+  --background: #eef2f6;
   --surface: #ffffff;
   --surface-2: #f8fafc;
-  --sidebar: #111827;
-  --sidebar-2: #1f2937;
-  --border: #e5e7eb;
+  --sidebar: #0b1524;
+  --sidebar-2: #142238;
+  --border: #d9e0e8;
   --text: #111827;
-  --muted: #6b7280;
-  --muted-2: #9ca3af;
+  --muted: #64748b;
+  --muted-2: #94a3b8;
   --orange: #f97316;
   --orange-dark: #ea580c;
   --blue: #2563eb;
@@ -22,7 +22,10 @@
 html { background: var(--background); color-scheme: light; }
 html, body { margin: 0; padding: 0; min-height: 100%; }
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 78% 0%, rgba(37,99,235,.055), transparent 28rem),
+    radial-gradient(circle at 20% 20%, rgba(249,115,22,.035), transparent 24rem),
+    var(--background);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -34,65 +37,27 @@ a { color: inherit; text-decoration: none; }
 ::selection { background: rgba(249,115,22,.18); color: #111827; }
 
 ::-webkit-scrollbar { width: 7px; height: 7px; }
-::-webkit-scrollbar-track { background: #f3f4f6; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-track { background: #e9edf2; }
+::-webkit-scrollbar-thumb { background: #b9c4d0; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 .flames-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(15,23,42,.04);
+  border-radius: 10px;
+  box-shadow: 0 2px 0 #d4dbe4, 0 10px 24px rgba(15,23,42,.07);
 }
-
 .flames-card-hover { transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
-.flames-card-hover:hover { border-color: #d1d5db; box-shadow: 0 8px 24px rgba(15,23,42,.07); transform: translateY(-1px); }
+.flames-card-hover:hover { border-color: #c5ced9; box-shadow: 0 3px 0 #cbd5e1, 0 16px 30px rgba(15,23,42,.11); transform: translateY(-2px); }
 
-.flames-button {
-  border: 1px solid var(--orange-dark);
-  border-radius: 6px;
-  background: var(--orange);
-  color: white;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 9px 14px;
-  transition: background .18s ease, box-shadow .18s ease;
-}
+.flames-button { border: 1px solid var(--orange-dark); border-radius: 6px; background: var(--orange); color: white; font-weight: 600; font-size: 13px; padding: 9px 14px; transition: background .18s ease, box-shadow .18s ease; }
 .flames-button:hover { background: var(--orange-dark); box-shadow: 0 3px 10px rgba(249,115,22,.2); }
 .flames-button:disabled { opacity: .55; cursor: not-allowed; }
-
-.flames-button-secondary {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  color: #374151;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 9px 14px;
-}
+.flames-button-secondary { border: 1px solid #d1d5db; border-radius: 6px; background: white; color: #374151; font-weight: 600; font-size: 13px; padding: 9px 14px; }
 .flames-button-secondary:hover { background: #f9fafb; border-color: #9ca3af; }
-
-.flames-button-ghost {
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #4b5563;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 6px;
-}
+.flames-button-ghost { border: 1px solid #d1d5db; background: white; color: #4b5563; font-weight: 600; font-size: 13px; padding: 8px 12px; border-radius: 6px; }
 .flames-button-ghost:hover { background: #f9fafb; }
-
-.flames-input {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  color: #111827;
-  padding: 9px 12px;
-  outline: none;
-  font-size: 13px;
-}
+.flames-input { width: 100%; border: 1px solid #d1d5db; border-radius: 6px; background: white; color: #111827; padding: 9px 12px; outline: none; font-size: 13px; }
 .flames-input::placeholder { color: #9ca3af; }
 .flames-input:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(249,115,22,.1); }
 
@@ -101,24 +66,115 @@ a { color: inherit; text-decoration: none; }
 .badge-success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-
 .divider { height: 1px; background: var(--border); }
 .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
 .status-dot-online { background: var(--success); }
 .status-dot-offline { background: #9ca3af; }
 .status-dot-warning { background: var(--warning); }
-
 .text-muted { color: var(--muted); }
 .text-sm-caps { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-
 .admin-sidebar { background: var(--sidebar); color: #d1d5db; }
 .admin-nav-item { color: #cbd5e1; border-radius: 5px; }
 .admin-nav-item:hover { background: #1f2937; color: white; }
 .admin-nav-item.active { background: var(--orange); color: white; }
-
 .admin-table { width: 100%; border-collapse: collapse; }
 .admin-table th { background: #f8fafc; color: #6b7280; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
 .admin-table td { color: #374151; font-size: 13px; padding: 12px 14px; border-bottom: 1px solid #f0f1f3; }
 .admin-table tr:last-child td { border-bottom: 0; }
 
-@media (max-width: 767px) { body { overflow-x: hidden; } }
+/* FLAMMES 2.5D control-center layer */
+main { perspective: 1400px; }
+main > div:first-child {
+  position: relative;
+  transform-style: preserve-3d;
+}
+main > div:first-child::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: -8px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(15,23,42,.13);
+  filter: blur(9px);
+  transform: translateZ(-20px);
+  pointer-events: none;
+}
+
+/* Boxed module headers gain a physical raised edge */
+main section > div:first-child,
+main > div:first-child {
+  position: relative;
+}
+main section {
+  transform-style: preserve-3d;
+}
+main section.rounded-2xl,
+main a.rounded-2xl {
+  box-shadow: 0 2px 0 #cfd7e1, 0 12px 24px rgba(15,23,42,.075), 0 22px 38px rgba(15,23,42,.035) !important;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+main section.rounded-2xl:hover,
+main a.rounded-2xl:hover {
+  transform: translateY(-3px) rotateX(.25deg);
+  box-shadow: 0 3px 0 #c3ccd7, 0 18px 34px rgba(15,23,42,.11), 0 30px 48px rgba(15,23,42,.045) !important;
+}
+
+/* Header strips read as separate dimensional modules */
+main section > div:first-child {
+  box-shadow: inset 0 -1px 0 rgba(148,163,184,.18), 0 2px 0 rgba(203,213,225,.55);
+}
+
+/* Metric cards: layered front face + lower extrusion */
+main section.grid > a {
+  isolation: isolate;
+  overflow: visible !important;
+}
+main section.grid > a::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 5px;
+  right: 5px;
+  bottom: -7px;
+  height: 10px;
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(to bottom, #d5dde7, #c7d0dc);
+  border: 1px solid #c5ced9;
+  border-top: 0;
+}
+main section.grid > a:hover::before { bottom: -9px; }
+
+/* Raised icon blocks */
+main section.grid > a > div:nth-child(2) > div:last-child {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 4px 0 rgba(15,23,42,.12), 0 10px 18px rgba(15,23,42,.14) !important;
+  transform: translateZ(12px);
+}
+
+/* Router View / system-date panel */
+main > div:nth-child(2) {
+  box-shadow: 0 2px 0 #d0d8e2, 0 12px 25px rgba(15,23,42,.065) !important;
+}
+main > div:nth-child(2) select {
+  box-shadow: inset 0 1px 2px rgba(15,23,42,.045), 0 2px 0 #dbe2e9;
+}
+
+/* Chart bars become physical columns */
+main section .bg-blue-600\/85 {
+  box-shadow: inset 3px 0 0 rgba(255,255,255,.16), 4px 0 0 #1d4ed8, 7px 6px 10px rgba(30,64,175,.16) !important;
+  transform: skewY(-1.5deg);
+  transform-origin: bottom;
+}
+
+/* Quick action cards have a small lower extrusion */
+main section.grid a.rounded-2xl svg { filter: drop-shadow(0 2px 1px rgba(15,23,42,.16)); }
+
+/* Sidebar has physical separation from workspace */
+.admin-sidebar { box-shadow: 5px 0 0 rgba(15,23,42,.16), 12px 0 28px rgba(15,23,42,.08); }
+
+@media (max-width: 767px) {
+  body { overflow-x: hidden; }
+  main { perspective: none; }
+  main section.rounded-2xl:hover, main a.rounded-2xl:hover { transform: translateY(-2px); }
+}
