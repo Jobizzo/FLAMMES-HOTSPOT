@@ -3,192 +3,70 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  Activity,
-  BarChart3,
-  Bell,
-  CalendarDays,
-  ChevronDown,
-  ChevronRight,
-  CreditCard,
-  Gauge,
-  Globe2,
-  LayoutDashboard,
-  Menu,
-  Package,
-  Radio,
-  Receipt,
-  Router,
-  Settings,
-  Ticket,
-  Users,
-  Wifi,
-  X,
-  UserPlus,
-  Boxes,
-  HelpCircle,
-} from "lucide-react";
+import { Activity, BarChart3, Bell, CalendarDays, ChevronDown, ChevronRight, CreditCard, Gauge, Globe2, LayoutDashboard, Menu, Package, Radio, Receipt, Router, Settings, Ticket, Users, Wifi, X, UserPlus, Boxes, HelpCircle, Zap, MoreHorizontal } from "lucide-react";
 
 const navigation = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Customers", href: "/customers", icon: Users },
-  { label: "Packages", href: "/packages", icon: Package, expandable: true },
-  { label: "Sessions", href: "/sessions", icon: Activity, expandable: true },
-  { label: "Payments", href: "/payments", icon: CreditCard, expandable: true },
-  { label: "Routers", href: "/routers", icon: Router, expandable: true },
+  { label: "Packages", href: "/packages", icon: Package },
+  { label: "Sessions", href: "/sessions", icon: Activity },
+  { label: "Payments", href: "/payments", icon: CreditCard },
+  { label: "Routers", href: "/routers", icon: Router },
   { label: "Reports", href: "/reports", icon: BarChart3 },
   { label: "Notifications", href: "/reports", icon: Bell },
-  { label: "Settings", href: "/settings", icon: Settings, expandable: true },
-];
-
-const quickLinks = [
-  { label: "Add Customer", href: "/customers", icon: UserPlus },
-  { label: "Create Package", href: "/packages", icon: Boxes },
-  { label: "Generate Voucher", href: "/packages", icon: Ticket },
-  { label: "Help & Support", href: "/reports", icon: HelpCircle },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 const metrics = [
-  { title: "Total Routers", value: "0", sub: "Online: 0   •   Offline: 0", icon: Router, tone: "blue", href: "/routers", action: "View Routers" },
-  { title: "Active Users", value: "0", sub: "Online: 0   •   Offline: 0", icon: Users, tone: "green", href: "/customers", action: "View Users" },
-  { title: "Active Sessions", value: "0", sub: "Expiring Soon: 0", icon: Gauge, tone: "orange", href: "/sessions", action: "View Sessions" },
-  { title: "Total Customers", value: "0", sub: "New This Month: 0", icon: Users, tone: "purple", href: "/customers", action: "View Customers" },
-  { title: "Hotspot Online Users", value: "0", sub: "Total Connected: 0", icon: Wifi, tone: "cyan", href: "/sessions", action: "View Online Users" },
-  { title: "PPPoE Online Users", value: "0", sub: "Connected: 0", icon: Radio, tone: "indigo", href: "/sessions", action: "View PPPoE Users" },
-  { title: "Static Online Users", value: "0", sub: "Connected: 0", icon: Globe2, tone: "slate", href: "/sessions", action: "View Static Users" },
-  { title: "Total Online Users", value: "0", sub: "Across All Networks", icon: Users, tone: "red", href: "/sessions", action: "View All Users" },
+  { title: "Total Routers", value: "0", detail: "Online 0  •  Offline 0", icon: Router, color: "bg-blue-600", href: "/routers" },
+  { title: "Active Users", value: "0", detail: "Online 0  •  Offline 0", icon: Users, color: "bg-emerald-500", href: "/customers" },
+  { title: "Active Sessions", value: "0", detail: "Expiring Soon: 0", icon: Gauge, color: "bg-orange-500", href: "/sessions" },
+  { title: "Total Customers", value: "0", detail: "New This Month: 0", icon: Users, color: "bg-violet-600", href: "/customers" },
+  { title: "Hotspot Online", value: "0", detail: "Total Connected: 0", icon: Wifi, color: "bg-cyan-500", href: "/sessions" },
+  { title: "PPPoE Online", value: "0", detail: "Connected: 0", icon: Radio, color: "bg-indigo-600", href: "/sessions" },
+  { title: "Static Online", value: "0", detail: "Connected: 0", icon: Globe2, color: "bg-slate-600", href: "/sessions" },
+  { title: "Total Online Users", value: "0", detail: "Across All Networks", icon: Users, color: "bg-rose-500", href: "/sessions" },
 ];
 
-const tone: Record<string, string> = {
-  blue: "bg-blue-600",
-  green: "bg-emerald-500",
-  orange: "bg-orange-500",
-  purple: "bg-violet-600",
-  cyan: "bg-cyan-500",
-  indigo: "bg-blue-700",
-  slate: "bg-slate-600",
-  red: "bg-rose-500",
-};
-
-const chartValues = [18, 22, 21, 28, 30, 31, 39, 44, 52, 63, 76, 68];
+const chartValues = [18, 24, 20, 31, 28, 39, 44, 51, 48, 62, 70, 66];
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const payments = [
-  ["—", "No customers yet", "—", "KSh 0", "—", "No transactions", "—"],
-  ["—", "Connect M-Pesa", "—", "KSh 0", "M-Pesa", "Configure gateway", "—"],
-  ["—", "Create a package", "—", "KSh 0", "—", "Waiting for sales", "—"],
-  ["—", "Add your first router", "—", "KSh 0", "—", "Network offline", "—"],
-];
-
-function Logo({ compact = false }: { compact?: boolean }) {
-  return (
-    <div className={`flex items-center ${compact ? "justify-center" : "gap-2.5"}`}>
-      <Image src="/flammes-tech-logo.svg" alt="FLAMMES TECH" width={compact ? 42 : 178} height={compact ? 34 : 42} className={compact ? "h-9 w-auto object-contain" : "h-10 w-auto object-contain"} priority />
-    </div>
-  );
+function Logo() {
+  return <Image src="/flammes-tech-logo.svg" alt="FLAMMES TECH" width={190} height={48} className="h-10 w-auto object-contain" priority />;
 }
 
-function Sidebar({ mobile = false, onClose }: { mobile?: boolean; onClose?: () => void }) {
-  return (
-    <aside className={`${mobile ? "relative h-full w-72" : "fixed inset-y-0 left-0 hidden w-[276px] md:block"} z-40 overflow-y-auto bg-[#0a1422] text-slate-200`}>
-      <div className="flex h-[76px] items-center border-b border-slate-800/80 px-5">
-        <Logo />
-        {mobile && <button onClick={onClose} className="ml-auto rounded-lg p-2 hover:bg-slate-800"><X size={20} /></button>}
-      </div>
+function Sidebar({ mobile = false, close }: { mobile?: boolean; close?: () => void }) {
+  return <aside className={`${mobile ? "relative w-[280px]" : "fixed inset-y-0 left-0 hidden w-[280px] md:block"} z-50 flex h-full flex-col bg-[#0b1524] text-slate-200`}>
+    <div className="flex h-[82px] shrink-0 items-center border-b border-white/10 px-6"><Logo />{mobile && <button onClick={close} className="ml-auto rounded-xl p-2 hover:bg-white/10"><X size={20}/></button>}</div>
+    <div className="px-4 py-5"><div className="mb-3 px-3 text-[10px] font-extrabold uppercase tracking-[.18em] text-slate-500">Main Menu</div><nav className="space-y-2">{navigation.map((item, index) => { const Icon=item.icon; const active=index===0; return <Link key={item.label} href={item.href} onClick={close} className={`flex min-h-[48px] items-center gap-3 rounded-xl border px-4 text-[14px] font-bold transition ${active ? "border-orange-400/30 bg-orange-500 text-white shadow-[0_8px_20px_rgba(249,115,22,.2)]" : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[.06] hover:text-white"}`}><Icon size={19}/><span>{item.label}</span>{["Packages","Sessions","Payments","Routers","Settings"].includes(item.label) && <ChevronRight size={15} className="ml-auto opacity-60"/>}</Link>})}</nav></div>
+    <div className="mt-auto border-t border-white/10 p-5"><div className="rounded-2xl border border-white/10 bg-white/[.04] p-4"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 shadow-lg"><Wifi size={19}/></div><div><div className="text-xs font-extrabold text-white">FLAMMES HOTSPOT</div><div className="mt-1 text-[10px] text-slate-400">Network Control Center</div></div></div></div></div>
+  </aside>;
+}
 
-      <div className="px-3 py-4">
-        <nav className="space-y-1">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const active = item.href === "/";
-            return (
-              <Link key={item.label} href={item.href} onClick={onClose} className={`flex h-11 items-center gap-3 rounded-lg px-3.5 text-[13px] font-semibold transition ${active ? "bg-orange-500 text-white shadow-sm" : "text-slate-300 hover:bg-slate-800/90 hover:text-white"}`}>
-                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-                <span>{item.label}</span>
-                {item.expandable && <ChevronRight size={15} className="ml-auto opacity-70" />}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="my-5 border-t border-slate-800" />
-        <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</div>
-        <div className="mt-2 space-y-1">
-          {quickLinks.map((item) => {
-            const Icon = item.icon;
-            return <Link key={item.label} href={item.href} onClick={onClose} className="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-300 hover:bg-slate-800 hover:text-white"><Icon size={17} />{item.label}</Link>;
-          })}
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 left-0 right-0 border-t border-slate-800 bg-[#09111d] p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white"><Wifi size={20} /></div>
-          <div><div className="text-sm font-bold text-white">FLAMMES HOTSPOT</div><div className="text-[10px] text-slate-400">Fast • Reliable • Secure</div></div>
-        </div>
-      </div>
-    </aside>
-  );
+function BoxHeader({ icon: Icon, title, description, action, href }: { icon: typeof Router; title: string; description: string; action?: string; href?: string }) {
+  return <div className="mb-4 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,.06)] sm:flex-row sm:items-center sm:justify-between md:p-6"><div className="flex items-center gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600 ring-1 ring-orange-100"><Icon size={23}/></div><div><h1 className="text-[20px] font-black tracking-tight text-slate-900">{title}</h1><p className="mt-1 text-[12px] leading-5 text-slate-500">{description}</p></div></div>{action && href && <Link href={href} className="inline-flex min-h-[42px] items-center justify-center rounded-xl bg-slate-900 px-5 text-xs font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-orange-600">{action}</Link>}</div>;
 }
 
 export default function Dashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-[#f5f7fa] text-slate-900">
-      <Sidebar />
-      {mobileOpen && <div className="fixed inset-0 z-50 md:hidden"><button className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} aria-label="Close sidebar" /><Sidebar mobile onClose={() => setMobileOpen(false)} /></div>}
-
-      <div className="md:pl-[276px]">
-        <header className="sticky top-0 z-30 flex h-[68px] items-center border-b border-slate-200 bg-[#0b1726] px-4 text-white shadow-sm md:px-6">
-          <button onClick={() => setMobileOpen(true)} className="mr-3 rounded-lg p-2 hover:bg-slate-800 md:hidden" aria-label="Open menu"><Menu size={21} /></button>
-          <div className="hidden items-center gap-2 md:flex"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /><span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">System Online</span></div>
-          <div className="ml-auto flex items-center gap-4">
-            <button className="relative rounded-lg p-2 text-slate-300 hover:bg-slate-800" aria-label="Notifications"><Bell size={19}/><span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">0</span></button>
-            <div className="hidden items-center gap-2 border-l border-slate-700 pl-4 sm:flex"><Wifi size={16} className="text-cyan-400" /><span className="text-xs text-slate-300">Network:</span><span className="text-xs font-bold">FLAMMES HOTSPOT</span><ChevronDown size={14}/></div>
-            <div className="flex items-center gap-2 border-l border-slate-700 pl-4"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 font-bold">A</div><div className="hidden sm:block"><div className="text-xs font-bold">Admin</div><div className="text-[9px] text-slate-400">Super Administrator</div></div><ChevronDown size={14}/></div>
-          </div>
-        </header>
-
-        <main className="p-4 md:p-6 lg:p-7">
-          <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div><h1 className="text-[27px] font-extrabold tracking-tight text-slate-900">Dashboard</h1><p className="mt-1 text-[13px] text-slate-500">Welcome back, Admin! Here's what's happening with your hotspot system.</p></div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-2 text-xs text-slate-600"><CalendarDays size={18}/><span>Tue, 16 Sep 2026<br/><b>20:42</b></span></div>
-              <div className="hidden h-10 w-px bg-slate-200 sm:block" />
-              <label className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Router View<select className="mt-1 block h-10 min-w-[240px] rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm outline-none focus:border-blue-500"><option>All Routers - System Wide</option></select></label>
-            </div>
-          </div>
-
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {metrics.map((metric) => { const Icon = metric.icon; return <Link key={metric.title} href={metric.href} className={`${tone[metric.tone]} group min-h-[125px] rounded-lg p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}><div className="flex items-start gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15"><Icon size={25}/></div><div className="min-w-0"><div className="text-xs font-semibold opacity-95">{metric.title}</div><div className="mt-1 text-[28px] font-extrabold leading-none">{metric.value}</div><div className="mt-2 whitespace-pre-line text-[10px] opacity-90">{metric.sub}</div></div></div><div className="mt-3 text-[11px] font-bold">{metric.action} <span className="inline-block transition group-hover:translate-x-1">→</span></div></Link>; })}
-          </section>
-
-          <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(330px,.95fr)]">
-            <div className="space-y-5">
-              <section className="flames-card overflow-hidden">
-                <div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><BarChart3 size={18}/>Monthly Registered Customers</div><div className="flex gap-1"><button className="rounded bg-white/15 px-2 py-1 text-sm hover:bg-white/25">−</button><button className="rounded bg-white/15 px-2 py-1 text-sm hover:bg-white/25">↗</button></div></div>
-                <div className="p-4 md:p-5"><div className="mb-3 flex items-center justify-center gap-2 text-[11px] text-slate-500"><span className="h-2.5 w-8 rounded-sm bg-blue-500"/>Registered Members</div><div className="relative h-52 border-b border-l border-slate-200 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_40px,#e8edf3_41px)]"><div className="absolute inset-x-4 bottom-0 flex h-full items-end justify-between gap-2">{chartValues.map((v, i) => <div key={months[i]} className="flex h-full w-full flex-col justify-end"><div className="mx-auto w-full max-w-7 rounded-t bg-blue-500/80" style={{height:`${v}%`}} /></div>)}</div></div><div className="mt-2 flex justify-between px-1 text-[10px] text-slate-400">{months.map(m=><span key={m}>{m}</span>)}</div></div>
-              </section>
-
-              <section className="flames-card overflow-hidden">
-                <div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><Receipt size={17}/>Recent Payments</div><Link href="/payments" className="text-xs font-semibold hover:underline">View All →</Link></div>
-                <div className="overflow-x-auto"><table className="admin-table min-w-[720px]"><thead><tr><th>#</th><th>Customer</th><th>Package</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody>{payments.map((row, i)=><tr key={i}>{row.map((cell,j)=><td key={j}>{j===5 ? <span className={`badge ${i===1 ? "badge-warning" : "badge-success"}`}>{cell}</span> : cell}</td>)}</tr>)}</tbody></table></div>
-              </section>
-            </div>
-
-            <div className="space-y-5">
-              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center justify-between bg-blue-600 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><CreditCard size={17}/>Payment Gateway</div><span className="badge bg-emerald-500 text-white">● M-Pesa Connected</span></div><div className="p-4"><div className="flex items-center gap-4"><div className="text-xl font-extrabold text-emerald-600">M-PESA</div><div className="h-12 w-px bg-slate-200"/><div className="flex-1 space-y-1 text-[11px]"><div><span className="text-slate-500">Status</span><b className="ml-5 text-emerald-600">● Active</b></div><div><span className="text-slate-500">Merchant ID</span><b className="ml-2">Not configured</b></div><div><span className="text-slate-500">Transaction Fee</span><b className="ml-2">—</b></div></div></div><Link href="/payments" className="mt-4 inline-flex rounded-md bg-orange-500 px-3 py-2 text-[11px] font-bold text-white hover:bg-orange-600">View Transactions →</Link></div></section>
-
-              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center gap-2 bg-blue-600 px-4 text-sm font-bold text-white"><Users size={17}/>User Insights</div><div className="p-4"><div className="flex items-center gap-4"><div className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full" style={{background:"conic-gradient(#2563eb 0deg 280deg,#dbeafe 280deg 360deg)"}}><div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-lg font-extrabold text-slate-700">0%</div></div><div className="flex-1 space-y-2 text-[11px]"><div className="flex justify-between"><span className="text-emerald-600">● Active Users</span><b>0</b></div><div className="flex justify-between"><span className="text-orange-500">● Inactive Users</span><b>0</b></div><div className="flex justify-between"><span className="text-blue-600">● New Users (7 days)</span><b>0</b></div><div className="flex justify-between"><span className="text-slate-400">● Total Users</span><b>0</b></div></div></div><Link href="/reports" className="mt-4 block text-right text-[11px] font-bold text-blue-600">View Analytics →</Link></div></section>
-
-              <section className="flames-card overflow-hidden"><div className="flex h-12 items-center justify-between bg-orange-500 px-4 text-white"><div className="flex items-center gap-2 text-sm font-bold"><Activity size={17}/>Quick Actions</div><span className="text-xs font-semibold">View All →</span></div><div className="grid grid-cols-2 divide-x divide-y divide-slate-200 sm:grid-cols-4 sm:divide-y-0">{[[UserPlus,"Add Customer","/customers"],[Package,"Create Package","/packages"],[Ticket,"Generate Voucher","/packages"],[BarChart3,"View Reports","/reports"]].map(([Icon,label,href])=>{const I=Icon as typeof UserPlus;return <Link key={label as string} href={href as string} className="flex min-h-[92px] flex-col items-center justify-center gap-2 p-3 text-center hover:bg-orange-50"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-blue-600"><I size={18}/></span><span className="text-[11px] font-bold text-slate-700">{label as string}</span></Link>})}</div></section>
-            </div>
-          </section>
-
-          <footer className="mt-6 flex flex-col gap-2 border-t border-slate-200 py-4 text-[10px] text-slate-400 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-2"><Image src="/flammes-tech-logo.svg" alt="FLAMMES TECH" width={110} height={25} className="h-6 w-auto object-contain opacity-70"/><span>FLAMMES HOTSPOT</span><span>•</span><span>Powered by FLAMMES TECH</span></div><span>© 2026 FLAMMES TECH. All rights reserved.</span></footer>
-        </main>
-      </div>
+  return <div className="min-h-screen bg-[#f1f4f8] text-slate-900">
+    <Sidebar />
+    {mobileOpen && <div className="fixed inset-0 z-[60] flex md:hidden"><button aria-label="Close menu" className="absolute inset-0 bg-slate-950/60" onClick={()=>setMobileOpen(false)}/><Sidebar mobile close={()=>setMobileOpen(false)}/></div>}
+    <div className="md:pl-[280px]">
+      <header className="sticky top-0 z-40 flex h-[70px] items-center border-b border-slate-800 bg-[#101c2c] px-4 text-white shadow-xl md:px-7"><button onClick={()=>setMobileOpen(true)} className="mr-3 rounded-xl p-2 hover:bg-white/10 md:hidden"><Menu size={21}/></button><div className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.8)]"/><span className="text-xs font-bold text-emerald-300">System Online</span></div><div className="ml-auto flex items-center gap-3 sm:gap-5"><div className="hidden items-center gap-2 border-l border-white/10 pl-5 sm:flex"><Wifi size={16} className="text-cyan-400"/><span className="text-xs text-slate-400">Network</span><b className="text-xs">FLAMMES HOTSPOT</b><ChevronDown size={14}/></div><button className="relative rounded-xl p-2.5 text-slate-300 hover:bg-white/10"><Bell size={19}/><span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[8px] font-extrabold">0</span></button><div className="flex items-center gap-2 border-l border-white/10 pl-3 sm:pl-5"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-sm font-extrabold">A</div><div className="hidden sm:block"><div className="text-xs font-extrabold">Admin</div><div className="text-[9px] text-slate-400">Super Administrator</div></div><ChevronDown size={14}/></div></div></header>
+      <main className="p-4 md:p-7 lg:p-8">
+        <BoxHeader icon={LayoutDashboard} title="Dashboard" description="Monitor your hotspot network, customers, sessions and payments from one control center." action="View Reports" href="/reports"/>
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><CalendarDays size={18} className="text-orange-500"/><div><div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">System Date</div><div className="text-xs font-bold text-slate-700">16 September 2026</div></div></div><label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Router View<select className="mt-1 block h-10 w-full min-w-[230px] rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 outline-none focus:border-orange-400 sm:w-auto"><option>All Routers - System Wide</option></select></label></div>
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{metrics.map(m=>{const Icon=m.icon;return <Link key={m.title} href={m.href} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_25px_rgba(15,23,42,.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_35px_rgba(15,23,42,.13)]"><div className={`absolute left-0 top-0 h-1 w-full ${m.color}`}/><div className="flex items-start justify-between gap-3"><div><div className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">{m.title}</div><div className="mt-3 text-[34px] font-black leading-none tracking-tight text-slate-900">{m.value}</div><div className="mt-3 text-[10px] font-semibold text-slate-400">{m.detail}</div></div><div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg ${m.color}`}><Icon size={23}/></div></div><div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-[10px] font-extrabold text-slate-500"><span>Open Module</span><ChevronRight size={15} className="transition group-hover:translate-x-1"/></div></Link>})}</section>
+        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(330px,.85fr)]">
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,.07)]"><div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-4"><div><div className="flex items-center gap-2 text-sm font-extrabold"><BarChart3 size={18} className="text-blue-600"/>Monthly Registered Customers</div><p className="mt-1 text-[10px] text-slate-400">Customer registration activity across the network</p></div><button className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 shadow-sm"><MoreHorizontal size={17}/></button></div><div className="p-5"><div className="mb-4 flex items-center justify-between"><span className="text-[11px] font-bold text-slate-500"><i className="mr-2 inline-block h-2.5 w-2.5 rounded-sm bg-blue-600"/>Registered Members</span><span className="rounded-lg bg-blue-50 px-2.5 py-1 text-[10px] font-extrabold text-blue-600">2026</span></div><div className="relative h-[230px] border-b border-l border-slate-200 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_45px,#e9edf2_46px)]"><div className="absolute inset-x-4 bottom-0 flex h-full items-end gap-2">{chartValues.map((v,i)=><div key={months[i]} className="flex h-full flex-1 items-end"><div className="w-full rounded-t-md bg-blue-600/85 shadow-[0_-4px_12px_rgba(37,99,235,.12)] transition hover:bg-orange-500" style={{height:`${v}%`}}/></div>)}</div></div><div className="mt-2 flex justify-between px-1 text-[9px] font-semibold text-slate-400">{months.map(m=><span key={m}>{m}</span>)}</div></div></section>
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,.07)]"><div className="border-b border-slate-100 bg-slate-50 px-5 py-4"><div className="flex items-center gap-2 text-sm font-extrabold"><CreditCard size={18} className="text-orange-500"/>Payment Gateway</div><p className="mt-1 text-[10px] text-slate-400">Payment infrastructure status</p></div><div className="space-y-4 p-5"><div className="flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 p-4"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-white shadow"><CreditCard size={19}/></div><div><div className="text-xs font-black">M-PESA</div><div className="mt-1 text-[10px] text-slate-500">Gateway connection</div></div></div><span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[9px] font-extrabold text-white">CONNECTED</span></div><div className="grid grid-cols-2 gap-3"><div className="rounded-xl border border-slate-100 p-3"><div className="text-[9px] font-bold uppercase text-slate-400">Transactions</div><div className="mt-1 text-lg font-black">0</div></div><div className="rounded-xl border border-slate-100 p-3"><div className="text-[9px] font-bold uppercase text-slate-400">Revenue</div><div className="mt-1 text-lg font-black">KSh 0</div></div></div><Link href="/payments" className="flex h-10 items-center justify-center rounded-xl bg-slate-900 text-[11px] font-extrabold text-white transition hover:bg-orange-600">Manage Payments</Link></div></section>
+        </div>
+        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,.07)]"><div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="flex items-center gap-2 text-sm font-extrabold"><Zap size={18} className="text-orange-500"/>User Insights</div><p className="mt-1 text-[10px] text-slate-400">Network activity overview by access type</p></div><Link href="/sessions" className="text-[11px] font-extrabold text-blue-600">View Sessions →</Link></div><div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0"><div className="p-5"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">Hotspot Users</span><Wifi size={18} className="text-cyan-500"/></div><div className="mt-3 text-2xl font-black">0</div><div className="mt-1 text-[10px] text-slate-400">Currently online</div></div><div className="p-5"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">PPPoE Users</span><Radio size={18} className="text-indigo-600"/></div><div className="mt-3 text-2xl font-black">0</div><div className="mt-1 text-[10px] text-slate-400">Currently connected</div></div><div className="p-5"><div className="flex items-center justify-between"><span className="text-xs font-bold text-slate-500">Static Users</span><Globe2 size={18} className="text-slate-600"/></div><div className="mt-3 text-2xl font-black">0</div><div className="mt-1 text-[10px] text-slate-400">Currently connected</div></div></div></section>
+        <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_28px_rgba(15,23,42,.07)]"><div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="flex items-center gap-2 text-sm font-extrabold"><Receipt size={18} className="text-blue-600"/>Recent Payments</div><p className="mt-1 text-[10px] text-slate-400">Latest payment activity from your customers</p></div><Link href="/payments" className="text-[11px] font-extrabold text-blue-600">View All →</Link></div><div className="overflow-x-auto"><table className="min-w-[760px] w-full text-left"><thead className="bg-slate-50"><tr className="border-b border-slate-100 text-[9px] font-extrabold uppercase tracking-wider text-slate-400"><th className="px-5 py-4">#</th><th className="px-5 py-4">Customer</th><th className="px-5 py-4">Package</th><th className="px-5 py-4">Amount</th><th className="px-5 py-4">Method</th><th className="px-5 py-4">Status</th><th className="px-5 py-4">Date</th></tr></thead><tbody>{[["01","No customers yet","—","KSh 0","—","No transactions","—"],["02","Connect M-Pesa","—","KSh 0","M-Pesa","Configure gateway","—"],["03","Create a package","—","KSh 0","—","Waiting for sales","—"]].map((r,i)=><tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td className="px-5 py-4 text-[11px] font-bold text-slate-400">{r[0]}</td>{r.slice(1).map((c,j)=><td key={j} className="px-5 py-4 text-[11px] font-semibold text-slate-600">{j===4?<span className="rounded-full bg-amber-50 px-2.5 py-1 text-[9px] font-extrabold text-amber-700">{c}</span>:c}</td>)}</tr>)}</tbody></table></div></section>
+        <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"><Link href="/customers" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><UserPlus size={20} className="text-orange-500"/><div className="mt-3 text-sm font-extrabold">Add Customer</div><div className="mt-1 text-[10px] text-slate-400">Register a new user</div></Link><Link href="/packages" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><Boxes size={20} className="text-blue-600"/><div className="mt-3 text-sm font-extrabold">Create Package</div><div className="mt-1 text-[10px] text-slate-400">Configure internet plans</div></Link><Link href="/packages" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><Ticket size={20} className="text-violet-600"/><div className="mt-3 text-sm font-extrabold">Generate Voucher</div><div className="mt-1 text-[10px] text-slate-400">Create access vouchers</div></Link><Link href="/reports" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><HelpCircle size={20} className="text-emerald-600"/><div className="mt-3 text-sm font-extrabold">Help & Support</div><div className="mt-1 text-[10px] text-slate-400">Get system assistance</div></Link></section>
+        <footer className="mt-8 border-t border-slate-200 py-6 text-center text-[10px] font-bold tracking-wide text-slate-400">©️2026 POWERED BY FLAMMES TECH</footer>
+      </main>
     </div>
-  );
+  </div>;
 }
