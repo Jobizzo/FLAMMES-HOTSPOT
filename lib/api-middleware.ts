@@ -13,7 +13,7 @@ export function rateLimit(req: NextRequest): boolean {
   if (!record || now > record.resetTime) {
     requestCounts.set(ip, {
       count: 1,
-      resetTime: now + 15 * 60 * 1000, // 15 minutes
+      resetTime: now + 15 * 60 * 1000,
     });
     return true;
   }
@@ -26,12 +26,16 @@ export function rateLimit(req: NextRequest): boolean {
   return true;
 }
 
-export async function withErrorHandling(
-  handler: (req: NextRequest) => Promise<NextResponse>
-) {
+type ApiHandler = (req: NextRequest) => Promise<NextResponse>;
+
+/**
+ * Wrap a Next.js App Router handler with rate limiting and consistent
+ * error handling. This function itself must be synchronous so that the
+ * exported GET/POST handlers remain valid Next.js route handlers.
+ */
+export function withErrorHandling(handler: ApiHandler): ApiHandler {
   return async (req: NextRequest) => {
     try {
-      // Check rate limit
       if (!rateLimit(req)) {
         return NextResponse.json(
           errorResponse("Rate limit exceeded"),
@@ -39,7 +43,6 @@ export async function withErrorHandling(
         );
       }
 
-      // Check request method
       if (req.method === "OPTIONS") {
         return new NextResponse(null, { status: 200 });
       }
