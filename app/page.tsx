@@ -1,493 +1,224 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Activity,
-  CircleDollarSign,
+  BarChart3,
+  Bell,
+  CreditCard,
   LayoutDashboard,
+  Menu,
+  Package,
+  Router,
+  Search,
+  Settings,
   Users,
   Wifi,
-  Router,
-  Package,
-  CreditCard,
-  BarChart3,
-  Settings,
-  Menu,
-  Bell,
+  X,
+  Network,
+  Ticket,
+  Receipt,
   ShieldCheck,
-  ArrowUpRight,
+  UserRound,
+  CircleDollarSign,
   TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
 
-const menuItems = [
-  {
-    name: "Overview",
-    href: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Customers",
-    href: "/customers",
-    icon: Users,
-  },
-  {
-    name: "Packages",
-    href: "/packages",
-    icon: Package,
-  },
-  {
-    name: "Sessions",
-    href: "/sessions",
-    icon: Wifi,
-  },
-  {
-    name: "Payments",
-    href: "/payments",
-    icon: CreditCard,
-  },
-  {
-    name: "Routers",
-    href: "/routers",
-    icon: Router,
-  },
-  {
-    name: "Reports",
-    href: "/reports",
-    icon: BarChart3,
-  },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+const navigation = [
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Customers", href: "/customers", icon: Users },
+  { label: "Activation", href: "/sessions", icon: Ticket },
+  { label: "Data Usage", href: "/reports", icon: Activity },
+  { label: "Hotspot Vouchers", href: "/packages", icon: Ticket },
+  { label: "Hotspot Binding", href: "/routers", icon: Wifi },
+  { label: "Packages / Plans", href: "/packages", icon: Package },
+  { label: "Transactions", href: "/payments", icon: Receipt },
+  { label: "Network", href: "/routers", icon: Network },
+  { label: "Reports", href: "/reports", icon: BarChart3 },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 const stats = [
-  {
-    title: "Active Users",
-    value: "0",
-    change: "+0%",
-    description: "Currently connected",
-    icon: Users,
-    badge: "LIVE",
-    color: "from-blue-600 to-blue-400",
-  },
-  {
-    title: "Today's Revenue",
-    value: "KES 0",
-    change: "+0%",
-    description: "Hotspot sales today",
-    icon: CircleDollarSign,
-    badge: "LIVE",
-    color: "from-green-600 to-green-400",
-  },
-  {
-    title: "Online Sessions",
-    value: "0",
-    change: "+0%",
-    description: "Active sessions",
-    icon: Activity,
-    badge: "LIVE",
-    color: "from-purple-600 to-purple-400",
-  },
-  {
-    title: "Connected Routers",
-    value: "0",
-    change: "+0%",
-    description: "Routers online",
-    icon: Router,
-    badge: "LIVE",
-    color: "from-amber-600 to-amber-400",
-  },
+  { label: "INCOME TODAY", value: "KSh. 0", icon: CircleDollarSign, tone: "orange", link: "View Reports" },
+  { label: "INCOME THIS MONTH", value: "KSh. 0", icon: TrendingUp, tone: "green", link: "View Reports" },
+  { label: "ACTIVE / EXPIRED", value: "0 / 0", icon: UserRound, tone: "blue", link: "View All" },
+  { label: "TOTAL USERS", value: "0", icon: Users, tone: "red", link: "View All" },
+  { label: "HOTSPOT ONLINE USERS", value: "0", icon: Wifi, tone: "teal", link: "View All" },
+  { label: "PPPOE ONLINE USERS", value: "0", icon: Network, tone: "purple", link: "View All" },
+  { label: "STATIC ONLINE USERS", value: "0", icon: Router, tone: "green", link: "View All" },
+  { label: "TOTAL ONLINE USERS", value: "0", icon: Users, tone: "brown", link: "View All" },
 ];
 
-const recentActivities = [
-  {
-    id: 1,
-    action: "Customer registered",
-    details: "John Doe (KES 500 package)",
-    time: "2 minutes ago",
-    icon: Users,
-  },
-  {
-    id: 2,
-    action: "Payment received",
-    details: "M-Pesa transaction #12345",
-    time: "15 minutes ago",
-    icon: CreditCard,
-  },
-  {
-    id: 3,
-    action: "Router connected",
-    details: "TP-Link Archer C7 (Westlands)",
-    time: "1 hour ago",
-    icon: Router,
-  },
-  {
-    id: 4,
-    action: "Session expired",
-    details: "Jane Smith (2-hour pass)",
-    time: "2 hours ago",
-    icon: Wifi,
-  },
-];
+const toneClasses: Record<string, string> = {
+  orange: "bg-orange-50 border-orange-100 text-orange-700",
+  green: "bg-emerald-50 border-emerald-100 text-emerald-700",
+  blue: "bg-blue-50 border-blue-100 text-blue-700",
+  red: "bg-red-50 border-red-100 text-red-700",
+  teal: "bg-teal-50 border-teal-100 text-teal-700",
+  purple: "bg-violet-50 border-violet-100 text-violet-700",
+  brown: "bg-amber-50 border-amber-100 text-amber-700",
+};
 
 export default function Dashboard() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-[#070707] text-white">
-      <div className="flex min-h-screen">
-        {/* SIDEBAR */}
-        <aside className="hidden w-64 shrink-0 border-r border-[#252525] bg-[#0b0b0b] p-5 md:block sticky top-0 h-screen overflow-y-auto">
-          {/* Logo */}
-          <div className="mb-10 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-xl font-bold shadow-lg">
-                🔥
-              </div>
-
-              <div>
-                <h1 className="text-lg font-black tracking-tight">FLAMMES</h1>
-
-                <p className="text-[10px] font-bold tracking-[0.25em] text-orange-500">
-                  HOTSPOT
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#f3f4f6] text-gray-900">
+      <aside className="admin-sidebar fixed inset-y-0 left-0 z-40 hidden w-64 overflow-y-auto border-r border-gray-800 md:block">
+        <div className="flex h-16 items-center gap-3 border-b border-gray-800 px-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-orange-500 text-white font-black">F</div>
+          <div>
+            <div className="text-base font-extrabold tracking-tight text-white">FLAMMES</div>
+            <div className="text-[9px] font-bold tracking-[.22em] text-orange-400">HOTSPOT</div>
           </div>
-
-          {/* Navigation */}
-          <p className="mb-4 px-3 text-sm-caps text-gray-600">Management</p>
-
-          <nav className="space-y-2 mb-8">
-            {menuItems.map((item) => {
+        </div>
+        <div className="p-3">
+          <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-wider text-gray-500">Management</div>
+          <nav className="space-y-1">
+            {navigation.map((item) => {
               const Icon = item.icon;
               const active = item.href === "/";
-
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    active
-                      ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20"
-                      : "text-gray-400 hover:bg-[#181818] hover:text-white"
-                  }`}
-                >
-                  <Icon size={19} />
-                  <span>{item.name}</span>
+                <Link key={item.label} href={item.href} className={`admin-nav-item flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium ${active ? "active" : ""}`}>
+                  <Icon size={16} />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
-
-          {/* System Status */}
-          <div className="mt-auto rounded-2xl glass-effect glass-effect-hover p-4">
-            <p className="text-sm-caps text-gray-600">System Status</p>
-
-            <div className="mt-4 flex items-center gap-3">
-              <span className="status-dot status-dot-online" />
-
-              <div>
-                <span className="text-sm font-semibold">System Online</span>
-                <p className="text-xs text-gray-500 leading-tight">
-                  Ready for operations
-                </p>
-              </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 border-t border-gray-800 bg-[#0b1220] p-3">
+          <div className="flex items-center gap-2 rounded-md bg-gray-800/70 p-3">
+            <span className="status-dot status-dot-online" />
+            <div>
+              <div className="text-xs font-semibold text-white">System Online</div>
+              <div className="text-[10px] text-gray-400">Ready for operations</div>
             </div>
           </div>
-        </aside>
+        </div>
+      </aside>
 
-        {/* MAIN CONTENT */}
-        <section className="min-w-0 flex-1">
-          {/* HEADER */}
-          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#252525] bg-[#0b0b0b]/95 px-5 py-4 backdrop-blur md:px-8">
-            <div className="flex items-center gap-4">
-              {/* Mobile Menu Toggle */}
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="rounded-lg p-2 hover:bg-[#181818] md:hidden transition-colors"
-                aria-label="Open menu"
-              >
-                <Menu size={22} />
-              </button>
-
-              <div>
-                <p className="text-[10px] font-bold tracking-widest text-orange-500">
-                  ADMIN PANEL
-                </p>
-
-                <h2 className="text-lg font-bold">Dashboard</h2>
-              </div>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} aria-label="Close menu" />
+          <aside className="admin-sidebar relative h-full w-72 overflow-y-auto p-3">
+            <div className="flex h-14 items-center justify-between px-2">
+              <div className="font-extrabold text-white">FLAMMES HOTSPOT</div>
+              <button onClick={() => setMobileOpen(false)} className="rounded p-2 hover:bg-gray-800"><X size={20} /></button>
             </div>
-
-            {/* Notifications */}
-            <button
-              type="button"
-              className="relative rounded-xl border border-[#252525] bg-[#111] p-3 hover:bg-[#181818] transition-colors"
-              aria-label="Notifications"
-            >
-              <Bell size={19} />
-
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50 animate-pulse-glow" />
-            </button>
-          </header>
-
-          {/* PAGE CONTENT */}
-          <div className="mx-auto max-w-[1500px] p-5 md:p-8">
-            {/* HERO SECTION */}
-            <section className="relative mb-8 overflow-hidden rounded-3xl border border-[#292929] bg-gradient-to-br from-[#18100b] via-[#101010] to-[#090909] p-6 md:p-8 animate-slide-up">
-              <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl" />
-
-              <div className="relative z-10">
-                <div className="mb-6 flex flex-wrap items-center gap-3">
-                  <span className="badge badge-primary">FLAMMES TECH</span>
-
-                  <span className="flex items-center gap-2 text-xs font-medium">
-                    <span className="status-dot status-dot-online" />
-                    <span className="text-green-400">ONLINE</span>
-                  </span>
-                </div>
-
-                <h1 className="max-w-3xl text-3xl font-black tracking-tight md:text-5xl leading-tight">
-                  Your hotspot.
-                  <br />
-
-                  <span className="text-gradient">Your network.</span> Your
-                  control.
-                </h1>
-
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-400 md:text-base">
-                  Manage customers, packages, payments, sessions and connected
-                  routers from one powerful platform. Monitor real-time activity
-                  and scale your hotspot business effortlessly.
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button className="flames-button">Get Started</button>
-                  <button className="flames-button-secondary">
-                    View Documentation
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* STATS GRID */}
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
-              {stats.map((stat) => {
-                const Icon = stat.icon;
-
-                return (
-                  <div
-                    key={stat.title}
-                    className="flames-card group overflow-hidden animate-slide-up"
-                    style={{ animationDelay: `${stats.indexOf(stat) * 50}ms` }}
-                  >
-                    <div className="mb-5 flex items-center justify-between">
-                      <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-3 text-white shadow-lg`}>
-                        <Icon size={21} />
-                      </div>
-
-                      <span className="text-[10px] font-bold text-green-500 badge badge-success">
-                        {stat.badge}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-gray-400">{stat.title}</p>
-
-                    <div className="mt-3 flex items-end justify-between">
-                      <p className="text-3xl font-black">{stat.value}</p>
-                      <span className="flex items-center gap-1 text-xs text-green-400 font-medium">
-                        <TrendingUp size={14} />
-                        {stat.change}
-                      </span>
-                    </div>
-
-                    <p className="mt-2 text-xs text-gray-500">
-                      {stat.description}
-                    </p>
-                  </div>
-                );
+            <nav className="space-y-1">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return <Link key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`admin-nav-item flex items-center gap-3 px-3 py-2.5 text-sm ${item.href === "/" ? "active" : ""}`}><Icon size={17} />{item.label}</Link>;
               })}
-            </section>
+            </nav>
+          </aside>
+        </div>
+      )}
 
-            {/* QUICK ACTIONS */}
-            <section className="mb-8">
-              <div className="mb-5">
-                <p className="text-sm-caps text-orange-500">Control Center</p>
-
-                <h2 className="mt-2 text-2xl font-black">Quick Actions</h2>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  {
-                    href: "/packages",
-                    icon: Package,
-                    title: "Manage Packages",
-                    desc: "Create and manage Wi-Fi plans.",
-                  },
-                  {
-                    href: "/routers",
-                    icon: Router,
-                    title: "Manage Routers",
-                    desc: "Connect and manage network hardware.",
-                  },
-                  {
-                    href: "/customers",
-                    icon: Users,
-                    title: "View Customers",
-                    desc: "Manage hotspot customers.",
-                  },
-                  {
-                    href: "/payments",
-                    icon: CreditCard,
-                    title: "View Payments",
-                    desc: "Monitor hotspot transactions.",
-                  },
-                ].map((action, idx) => {
-                  const ActionIcon = action.icon;
-                  return (
-                    <Link
-                      key={action.href}
-                      href={action.href}
-                      className="flames-card group animate-slide-up hover:-translate-y-2"
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                    >
-                      <div className="rounded-xl bg-orange-500/10 p-3 w-fit text-orange-500 group-hover:bg-orange-500/20 transition-colors">
-                        <ActionIcon size={21} />
-                      </div>
-
-                      <h3 className="mt-4 font-bold text-white group-hover:text-orange-400 transition-colors">
-                        {action.title}
-                      </h3>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        {action.desc}
-                      </p>
-
-                      <div className="mt-4 flex items-center justify-between text-xs text-orange-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>Open</span>
-                        <ArrowUpRight size={14} />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* LIVE MONITOR & STATUS */}
-            <section className="grid gap-4 lg:grid-cols-3">
-              {/* Recent Activity */}
-              <div className="flames-card lg:col-span-2 animate-slide-up">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-sm-caps text-orange-500">Live Monitor</p>
-
-                    <h2 className="mt-2 text-xl font-black">Recent Activity</h2>
-                  </div>
-
-                  <Activity size={21} className="text-orange-500" />
-                </div>
-
-                <div className="space-y-3">
-                  {recentActivities.map((activity) => {
-                    const ActivityIcon = activity.icon;
-                    return (
-                      <div
-                        key={activity.id}
-                        className="flex items-center justify-between p-4 rounded-xl hover:bg-[#151515] transition-colors border border-transparent hover:border-[#252525]"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="rounded-lg bg-orange-500/10 p-2.5 text-orange-500">
-                            <ActivityIcon size={18} />
-                          </div>
-
-                          <div>
-                            <p className="text-sm font-medium">
-                              {activity.action}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {activity.details}
-                            </p>
-                          </div>
-                        </div>
-
-                        <span className="text-xs text-gray-600 whitespace-nowrap ml-4">
-                          {activity.time}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <button className="flames-button-ghost w-full mt-4">
-                  View All Activity
-                </button>
-              </div>
-
-              {/* Network Status */}
-              <div className="flames-card animate-slide-up" style={{ animationDelay: "150ms" }}>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 text-green-500 shadow-lg shadow-green-500/20">
-                  <ShieldCheck size={24} />
-                </div>
-
-                <h2 className="mt-5 text-lg font-black">Network Status</h2>
-
-                <p className="mt-3 text-sm leading-6 text-gray-400">
-                  Your FLAMMES HOTSPOT management system is online and ready for
-                  operations.
-                </p>
-
-                <div className="mt-6 space-y-3 rounded-xl border border-[#252525] bg-black/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Platform</span>
-                    <span className="flex items-center gap-2">
-                      <span className="status-dot status-dot-online" />
-                      <span className="text-sm font-bold text-green-400">
-                        ONLINE
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="divider" />
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Database</span>
-                    <span className="flex items-center gap-2">
-                      <span className="status-dot status-dot-online" />
-                      <span className="text-sm font-bold text-green-400">
-                        READY
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="divider" />
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">API</span>
-                    <span className="flex items-center gap-2">
-                      <span className="status-dot status-dot-online" />
-                      <span className="text-sm font-bold text-green-400">
-                        ACTIVE
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* FOOTER */}
-            <footer className="mt-12 border-t border-[#252525] py-6 text-center text-xs text-gray-600">
-              © 2026 FLAMMES TECH. All rights reserved. Powered by FLAMMES TECH
-              • v1.0.0
-            </footer>
+      <main className="min-w-0 md:pl-64">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm md:px-6">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileOpen(true)} className="rounded-md p-2 hover:bg-gray-100 md:hidden" aria-label="Open menu"><Menu size={21} /></button>
+            <div className="hidden text-sm text-gray-500 sm:block">Dashboard</div>
           </div>
-        </section>
-      </div>
-    </main>
+          <div className="flex items-center gap-3">
+            <div className="relative hidden w-64 md:block">
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
+              <input className="h-9 w-full rounded-md border border-gray-200 bg-gray-50 pl-9 pr-3 text-xs outline-none focus:border-orange-400" placeholder="Search users..." />
+            </div>
+            <button className="relative rounded-md border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50" aria-label="Notifications"><Bell size={17} /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-orange-500" /></button>
+            <div className="hidden items-center gap-2 sm:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-700">A</div>
+              <span className="text-xs font-semibold text-gray-700">Administrator</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="p-4 md:p-6">
+          <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="mt-1 text-xs text-gray-500">Monitor your hotspot, customers, revenue and network activity.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600"><span className="status-dot status-dot-online" /> System online</span>
+              <button className="flames-button">Refresh Data</button>
+            </div>
+          </div>
+
+          <section className="mb-5 overflow-hidden rounded-md border border-blue-600 bg-white">
+            <div className="flex flex-col gap-3 bg-blue-600 px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold"><Router size={17} /> Router View</div>
+              <select className="rounded-md border-0 bg-white px-3 py-2 text-xs text-gray-700 outline-none"><option>All Routers - System Wide</option></select>
+            </div>
+          </section>
+
+          <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className={`rounded-lg border p-4 shadow-sm ${toneClasses[stat.tone]}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-2xl font-bold leading-none">{stat.value}</div>
+                      <div className="mt-2 text-[10px] font-bold uppercase tracking-wide opacity-80">{stat.label}</div>
+                    </div>
+                    <Icon size={27} className="opacity-35" />
+                  </div>
+                  <div className="mt-4 border-t border-current/10 pt-2 text-[10px] font-medium opacity-75">{stat.link} →</div>
+                </div>
+              );
+            })}
+          </section>
+
+          <div className="grid gap-5 xl:grid-cols-3">
+            <section className="flames-card overflow-hidden xl:col-span-2">
+              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-800"><BarChart3 size={17} className="text-blue-600" /> Monthly Registered Customers</div>
+                <div className="flex gap-1"><button className="rounded bg-gray-100 px-2 py-1 text-xs">−</button><button className="rounded bg-gray-100 px-2 py-1 text-xs">×</button></div>
+              </div>
+              <div className="p-4">
+                <div className="mb-2 flex items-center gap-2 text-[11px] text-gray-500"><span className="h-2 w-6 rounded-sm bg-blue-500" /> Registered Members</div>
+                <div className="relative h-56 border-l border-b border-gray-200 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_44px,#eef0f2_45px)]">
+                  <div className="absolute bottom-0 left-0 right-0 flex h-full items-end justify-around px-4">
+                    {[12, 28, 20, 42, 34, 58, 48, 68, 55, 76, 63, 82].map((height, i) => <div key={i} className="w-[5%] max-w-8 rounded-t bg-blue-500/70" style={{ height: `${height}%` }} />)}
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-between text-[9px] text-gray-400"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span></div>
+              </div>
+            </section>
+
+            <div className="space-y-5">
+              <section className="flames-card overflow-hidden">
+                <div className="bg-blue-600 px-4 py-3 text-sm font-semibold text-white">Payment Gateway</div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 py-3"><span className="text-xs text-gray-500">M-Pesa</span><span className="badge badge-success">Ready</span></div>
+                  <div className="flex items-center justify-between py-3"><span className="text-xs text-gray-500">Payment API</span><span className="badge badge-warning">Configure</span></div>
+                  <Link href="/payments" className="mt-2 inline-block text-xs font-semibold text-blue-600">Manage payment settings →</Link>
+                </div>
+              </section>
+
+              <section className="flames-card overflow-hidden">
+                <div className="bg-blue-600 px-4 py-3 text-sm font-semibold text-white">All Users Insights</div>
+                <div className="p-4">
+                  <div className="flex items-start gap-3 rounded-md bg-sky-50 p-3">
+                    <ShieldCheck size={21} className="mt-0.5 text-blue-600" />
+                    <div><div className="text-xs font-semibold text-gray-800">System support</div><p className="mt-1 text-[11px] leading-5 text-gray-500">Your hotspot dashboard is ready. Connect routers and create packages to begin serving customers.</p></div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-center"><div className="rounded border border-gray-200 p-3"><div className="text-lg font-bold">0</div><div className="text-[9px] uppercase text-gray-400">Online</div></div><div className="rounded border border-gray-200 p-3"><div className="text-lg font-bold">0</div><div className="text-[9px] uppercase text-gray-400">Routers</div></div></div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <section className="mt-5 grid gap-5 lg:grid-cols-2">
+            <div className="flames-card p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">Quick Actions</h2><span className="text-[10px] text-gray-400">Control center</span></div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{[[Users,"Customers","/customers"],[Package,"Packages","/packages"],[Router,"Routers","/routers"],[CreditCard,"Payments","/payments"]].map(([Icon,label,href]) => { const I = Icon as typeof Users; return <Link key={label as string} href={href as string} className="rounded-md border border-gray-200 p-3 hover:border-orange-300 hover:bg-orange-50"><I size={17} className="text-orange-500" /><div className="mt-2 text-xs font-semibold">{label as string}</div></Link>; })}</div></div>
+            <div className="flames-card p-4"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">Network Status</h2><span className="badge badge-success">Operational</span></div><div className="grid grid-cols-3 gap-2"><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Routers</div><div className="mt-1 text-xl font-bold">0</div></div><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Sessions</div><div className="mt-1 text-xl font-bold">0</div></div><div className="rounded-md bg-gray-50 p-3"><div className="text-xs text-gray-500">Customers</div><div className="mt-1 text-xl font-bold">0</div></div></div></div>
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }
