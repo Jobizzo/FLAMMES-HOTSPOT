@@ -1,5 +1,5 @@
-// API response utilities
-export type ApiResponse<T = any> = {
+// Shared API response utilities
+export type ApiResponse<T = unknown> = {
   success: boolean;
   data?: T;
   error?: string;
@@ -14,7 +14,7 @@ export function successResponse<T>(data: T): ApiResponse<T> {
   };
 }
 
-export function errorResponse(message: string): ApiResponse {
+export function errorResponse(message: string): ApiResponse<never> {
   return {
     success: false,
     error: message,
@@ -23,10 +23,7 @@ export function errorResponse(message: string): ApiResponse {
 }
 
 export class ApiError extends Error {
-  constructor(
-    public statusCode: number,
-    message: string
-  ) {
+  constructor(public statusCode: number, message: string) {
     super(message);
     this.name = "ApiError";
   }
