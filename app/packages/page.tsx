@@ -31,7 +31,7 @@ export default function PackagesPage() {
     try {
       const res = await fetch("/api/packages");
       const data = await res.json();
-      if (data.success) setPackages(data.data.packages);
+      if (Array.isArray(data)) setPackages(data);
     } catch (error) {
       console.error("Failed to fetch packages", error);
     } finally {
@@ -45,11 +45,11 @@ export default function PackagesPage() {
       const res = await fetch("/api/packages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, price: parseFloat(formData.price), durationMinutes: parseInt(formData.durationMinutes) }),
+        body: JSON.stringify({ name: formData.name, price: parseFloat(formData.price), duration_minutes: parseInt(formData.durationMinutes) }),
       });
       const data = await res.json();
-      if (data.success) {
-        setPackages((current) => [...current, data.data]);
+      if (res.ok) {
+        setPackages((current) => [...current, data]);
         setFormData({ name: "", price: "", durationMinutes: "" });
         setShowModal(false);
       }
