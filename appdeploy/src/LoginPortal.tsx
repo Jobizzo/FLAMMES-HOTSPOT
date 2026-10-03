@@ -20,8 +20,8 @@ export default function LoginPortal() {
     <button className="auth-provider-button" disabled={busy} onClick={() => void signIn()}><Chrome size={18} /><span>Continue with Google</span></button>
     <button className="auth-provider-button" disabled={busy} onClick={() => void signIn()}><Apple size={18} /><span>Continue with Apple</span></button>
     <button className="auth-provider-button" disabled={busy} onClick={() => void signIn()}><AtSign size={18} /><span>Continue with Email</span></button>
-    <div className="auth-divider"><span>SECURE APPDEPLOY AUTHENTICATION</span></div>
-    <div className="auth-security"><LockKeyhole size={17} /><div><strong>Email sign-in</strong><p>AppDeploy's supported email method uses a secure email sign-in flow instead of storing passwords in FLAMMES HOTSPOT.</p></div></div>
+    <div className="auth-divider"><span>SECURE FLAMMES TECH AUTHENTICATION</span></div>
+    <div className="auth-security"><LockKeyhole size={17} /><div><strong>Email sign-in</strong><p>Your account is protected by a secure sign-in flow. FLAMMES HOTSPOT does not store your social-provider password.</p></div></div>
     {notice && <div className="notice"><ShieldCheck size={16} /><span>{notice}</span></div>}
   </div></div>;
 }
