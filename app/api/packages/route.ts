@@ -51,14 +51,6 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     active: true,
   };
 
-  // These fields are only written when the existing schema supports the
-  // extended hotspot package model. The core package fields remain compatible
-  // with the existing production packages table.
-  if (Number.isFinite(speedMbps) && speedMbps > 0) insertRecord.speed_mbps = speedMbps;
-  if (dataLimitMb !== null && Number.isFinite(dataLimitMb) && dataLimitMb > 0) {
-    insertRecord.data_limit_mb = dataLimitMb;
-  }
-
   const { data, error } = await supabaseAdmin
     .from("packages")
     .insert(insertRecord)
