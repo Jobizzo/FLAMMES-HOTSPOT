@@ -1,0 +1,17 @@
+import { useEffect, useState } from 'react';
+import { api } from '@appdeploy/client';
+import { Activity, Copy, RefreshCw, Router, ShieldCheck } from 'lucide-react';
+type Gateway={id:string;name:string;siteId:string;platform:string;status:string;lastHeartbeatAt?:number;version?:string};
+export default function GatewayAdmin(){
+ const [items,setItems]=useState<Gateway[]>([]),[loading,setLoading]=useState(true),[name,setName]=useState(''),[platform,setPlatform]=useState('linux'),[token,setToken]=useState(''),[notice,setNotice]=useState('');
+ const load=async()=>{setLoading(true);try{const r=await api.get('/api/gateways');setItems(r.data.items??[])}finally{setLoading(false)}};
+ useEffect(()=>{void load()},[]);
+ const register=async()=>{if(!name.trim()){setNotice('Enter a gateway name.');return}const r=await api.post('/api/gateways/register',{name,siteId:'default',platform});setToken(r.data.enrollmentToken);setName('');setNotice('Gateway enrolled. Save the token now; it will not be shown again.');await load()};
+ return <section className="panel full-page-panel"><div className="page-header"><div><span className="section-kicker">FLAMMES HOTSPOT</span><h1>Gateway Agents</h1><p>Local agents provide network enforcement for hardware that needs an intermediary.</p></div><button className="secondary-action" onClick={()=>void load()}><RefreshCw size={14}/>Refresh</button></div>
+ {notice&&<div className="notice"><ShieldCheck size={16}/><span>{notice}</span></div>}
+ {token&&<div className="gateway-token-card"><strong>ONE-TIME ENROLLMENT TOKEN</strong><code>{token}</code><button className="secondary-action" onClick={()=>void navigator.clipboard?.writeText(token)}><Copy size={14}/>Copy</button></div>}
+ <div className="gateway-enroll"><div><span className="section-kicker">ENROLL GATEWAY</span><h2>Connect a local network agent</h2><p>The agent will poll for commands, receive captive-portal/walled-garden policy and report health. Router credentials remain backend-only.</p></div><div className="gateway-form"><input placeholder="Gateway name" value={name} onChange={e=>setName(e.target.value)}/><select value={platform} onChange={e=>setPlatform(e.target.value)}><option value="linux">Linux</option><option value="openwrt">OpenWrt</option><option value="windows">Windows</option><option value="android">Android</option></select><button className="primary-action" onClick={()=>void register()}>Generate Enrollment</button></div></div>
+ <div className="record-list">{loading?<div className="loading-card">Loading gateways…</div>:items.map(g=><div className="record-row gateway-row" key={g.id}><span className="row-icon"><Router size={16}/></span><div><strong>{g.name}</strong><small>{g.platform} • Site: {g.siteId}{g.version?' • '+g.version:''}</small></div><em className={g.status==='online'?'status-pill online':'status-pill offline'}><i/>{g.status}</em><span className="gateway-heartbeat">{g.lastHeartbeatAt?new Date(g.lastHeartbeatAt).toLocaleString():'Never'}</span></div>)}{!items.length&&!loading&&<div className="empty-inline">No gateway agents enrolled yet.</div>}</div>
+ <div className="integration-note"><Activity size={18}/><div><strong>Gateway enforcement foundation active</strong><p>Gateway agents have authenticated heartbeat, policy snapshot and command-queue endpoints. The next step adds real session authorization and disconnect enforcement.</p></div></div>
+ </section>;
+}
