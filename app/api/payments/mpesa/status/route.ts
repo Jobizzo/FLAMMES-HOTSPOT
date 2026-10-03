@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server";
+export async function GET(){const names=["FLAMMES_MPESA_CONSUMER_KEY","FLAMMES_MPESA_CONSUMER_SECRET","FLAMMES_MPESA_SHORTCODE","FLAMMES_MPESA_PASSKEY","FLAMMES_MPESA_CALLBACK_URL"];const configured=Object.fromEntries(names.map(k=>[k,Boolean(process.env[k])]));return NextResponse.json({environment:process.env.FLAMMES_MPESA_ENVIRONMENT||"sandbox",configured,ready:names.every(k=>configured[k])});}
