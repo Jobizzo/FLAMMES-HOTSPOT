@@ -25,12 +25,6 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const price = Number(body.price);
   const durationMinutes = Number(body.durationMinutes ?? body.duration_minutes);
-  const speedMbps = Number(body.speedMbps ?? 0);
-  const dataLimitMb =
-    body.dataLimitMb == null || body.dataLimitMb === ""
-      ? null
-      : Number(body.dataLimitMb);
-
   if (
     !name ||
     !Number.isFinite(price) ||
